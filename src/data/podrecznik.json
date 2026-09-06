@@ -1,0 +1,914 @@
+{
+  "adoracja": {
+    "Kim Jesteś Boże": {
+      "Bogiem Wszelkiej Mądrości": {
+        "references": [
+          {
+            "sigla": {
+              "name": "Księga Daniela",
+              "number": "2,20-23"
+            },
+            "quote": "Niech będzie błogosławione imię Boga przez wszystkie wieki wieków! Bo mądrość i moc są Twoim przymiotem. Ty zmieniasz okresy i czasy, usuwasz królów i ustanawiasz królów, udzielasz mędrcom mądrości, a wiedzy rozumnym. Odsłaniasz to, co niezgłębione i ukryte, i znasz to, co spowite w ciemność, a światłość mieszka u Ciebie."
+          },
+          {
+            "sigla": {
+              "name": "List do Kolosan",
+              "number": "2,3"
+            },
+            "quote": "Bo w tobie wszystkie skarby mądrości i wiedzy są ukryte."
+          }
+        ]
+      },
+      "Dobry i szczodry": {
+        "references": [
+          {
+            "sigla": {
+              "name": "Drugi List do Koryntian",
+              "number": "1,20"
+            },
+            "quote": "Albowiem ile tylko Twoich obietnic, w Tobie wszystkie są tak. Dlatego też przez Ciebie wypowiada się nasze Amen Bogu na chwałę."
+          },
+          {
+            "sigla": {
+              "name": "Drugi List św. Piotra Apostoła",
+              "number": "1,3"
+            },
+            "quote": "Tak samo Boska Jego wszechmoc udzieliła nam tego wszystkiego, co się odnosi do życia i pobożności, przez poznanie Tego, który powołał nas swoją chwałą i doskonałością."
+          },
+          {
+            "sigla": {
+              "name": "Ewangelia według św. Jana",
+              "number": "16,24"
+            },
+            "quote": "Ty powiedziałeś, żebyśmy prosili, a otrzymamy, aby radość nasza była pełna."
+          },
+          {
+            "sigla": {
+              "name": "List św. Jakuba Apostoła",
+              "number": "1,17"
+            },
+            "quote": "Każde dobro, jakie otrzymujemy, i wszelki dar doskonały zstępują z góry, od Ojca świateł, u którego nie ma przemiany ani cienia zmiennośc"
+          },
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "103,5"
+            },
+            "quote": "On twoje dni nasyca dobrami: odnawia się młodość twoja jak orła"
+          },
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "107,9"
+            },
+            "quote": "bo Ty nasycasz tego, który jest zgłodniały, i łaknącego napełniasz dobrami"
+          },
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "130,7"
+            },
+            "quote": "U ciebie bowiem jest łaskawośc i obfite u ciebie odkupienie."
+          },
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "31,20"
+            },
+            "quote": "Jakże jest wielka, o Panie, Twoja dobroć, którą zachowujesz dla tych, co się boją Ciebie, i okazujesz tym, co w Tobie szukają ucieczki na oczach synów ludzkich."
+          },
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "34,9-10"
+            },
+            "quote": "Chcę skosztować i zobaczyć jak dobry jesteś, szczęśliwy jest człowiek, który się do Ciebie ucieka. Chcę się bać ciebie- Panie, gdyż bogobojni nie doświadczają biedy."
+          },
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "68,6-7"
+            },
+            "quote": "Ty jesteś ojcem dla sierot i dla wdów opiekunem w swym świętym mieszkaniu.To Ty przygotowujesz dom dla opuszczonych, a jeńców prowadzisz ku pomyślności. Na ziemi zeschłej zostają tylko oporni."
+          },
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "86,5"
+            },
+            "quote": "Ty bowiem, Panie, jesteś dobry i pełen przebaczenia, pełen łaskawości dla wszystkich, którzy Cię wzywają."
+          },
+          {
+            "sigla": {
+              "name": "Księga Wyjścia",
+              "number": "33,18-19"
+            },
+            "quote": "Ty ukarzesz mi swój majestat i ogłosisz przede mną Swoje imię, gdyż Ty wyświadczasz łaskę, komu chcesz i miłosierdzie komu ci się podoba"
+          },
+          {
+            "sigla": {
+              "name": "Księga Wyjścia",
+              "number": "34,6-7"
+            },
+            "quote": "Przeszedł Pan przed jego oczyma i wołał1: «Jahwe, Jahwe, Bóg miłosierny i litościwy, cierpliwy, bogaty w łaskę i wierność, zachowujący swą łaskę w tysiączne pokolenia, przebaczający niegodziwość, niewierność, grzech, lecz nie pozostawiający go bez ukarania, ale zsyłający kary za niegodziwość ojców na synów i wnuków aż do trzeciego i czwartego pokolenia»"
+          }
+        ]
+      },
+      "Doskonały i czysty": {
+        "references": [
+          {
+            "sigla": {
+              "name": "List św. Jakuba Apostoła",
+              "number": "1,17"
+            },
+            "quote": "Każde dobro, jakie otrzymujemy, i wszelki dar doskonały zstępują z góry, od Ojca świateł7, u którego nie ma przemiany ani cienia zmienności."
+          },
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "18,31"
+            },
+            "quote": "Twoja droga Boże jest doskonała, Twoje słowo w ogniu wypróbowane, Tyś tarczą dla wszystkich, którzy u ciebie się chronią."
+          },
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "19,8-11"
+            },
+            "quote": "Prawo Pana doskonałe - krzepi ducha; świadectwo Pana niezawodne - poucza prostaczka; nakazy Pana słuszne - radują serce; przykazanie Pana jaśnieje i oświeca oczy, bojaźń Pańska szczera, trwająca na wieki; sądy Pańskie prawdziwe, wszystkie razem są słuszne. Cenniejsze niż złoto, niż złoto najczystsze, a słodsze od miodu płynącego z plastra."
+          }
+        ]
+      },
+      "Dostępny": {
+        "references": [
+          {
+            "sigla": {
+              "name": "List św. Jakuba Apostoła",
+              "number": "4,8"
+            },
+            "quote": "Przystąpię bliżej do Ciebie, abyś Ty zbliżył się do mnie."
+          },
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "46"
+            },
+            "quote": ":Ty jesteś dla nas ucieczką i mocą: łatwo znaleźć u Ciebie pomoc w trudnościach."
+          }
+        ]
+      },
+      "Kochający i troszczący się": {
+        "references": [
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "103,4"
+            },
+            "quote": "Ty życie moje wybawiasz od zguby. Ty wieńczysz mnie łaską i zmiłowaniem."
+          },
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "103,8-17"
+            },
+            "quote": "Miłosierny jesteś i łaskawy, nieskory do gniewu i bardzo łagodny."
+          },
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "145,14-16"
+            },
+            "quote": "Ty jesteś sprawiedliwy na wszystkich swych drogach i łaskawy we wszystkich swoich dziełach. Ty jesteś blisko wszystkich, którzy Ciebie wzywają, wszystkich wzywających Cię."
+          },
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "145,17"
+            },
+            "quote": "Ty jesteś sprawiedliwy na wszystkich swych drogach i łaskawy we wszystkich swoich dziełach. Ty jesteś blisko wszystkich, którzy Ciebie wzywają, wszystkich wzywających Cię."
+          },
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "145,8-9"
+            },
+            "quote": "Ty jesteś łagodny i miłosierny, nieskory do gniewu i bardzo łaskawy. Ty jesteś dobry dla wszystkich i Twoje miłosierdzie ogarnia wszystkie Twoje dzieła."
+          },
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "31,21"
+            },
+            "quote": "Ukrywasz nas pod osłoną Twojej obecności od spisku mężów, w swoim namiocie nas kryjesz przed sporem języków."
+          },
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "33,5"
+            },
+            "quote": "Ty miłujesz prawo i sprawiedliwość: ziemia jest pełna Twojej łaskawości."
+          },
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "34,19"
+            },
+            "quote": "Ty jesteś blisko skruszonych w sercu i wybawiasz złamanych na duchu."
+          },
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "68,20"
+            },
+            "quote": "Błogosławiony jesteś Ty, który nie odpychasz mej prośby i nie odejmujesz mi swojej łaskawości."
+          },
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "86,15"
+            },
+            "quote": "Ty jesteś łaskawy, sprawiedliwy i miłosierny."
+          }
+        ]
+      },
+      "Łaskawy": {
+        "references": [
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "103,8"
+            },
+            "quote": "Miłosierny jesteś i łaskawy, nieskory do gniewu i bardzo łagodny."
+          },
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "111,4"
+            },
+            "quote": "Ty zapewniłeś pamięć swym cudom, jesteś miłosierny i łaskawy."
+          },
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "116,5"
+            },
+            "quote": "Ty jesteś łaskawy, sprawiedliwy i miłosierny."
+          },
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "145,8"
+            },
+            "quote": "Ty jesteś łagodny i miłosierny, nieskory do gniewu i bardzo łaskawy."
+          }
+        ]
+      },
+      "Mocny i potężny": {
+        "references": [
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "145,17"
+            },
+            "quote": "Mocny i potężny, Ty jesteś Bogiem żyjącym i trwającym na wieki. Ty ratujesz i uwalniasz, czyniąc znaki i cuda na niebie i na ziemi. URATOWAŁEŚ DANIELA Z MOCY LWÓW."
+          },
+          {
+            "sigla": {
+              "name": "Ewangelia według św. Jana",
+              "number": "14,12"
+            },
+            "quote": "Ty powiedziałeś, że kto w Ciebie wierzy, będzie także dokonywał tych dzieł. Tak dokonywałeś, a nawet większe od tych uczyni, bo Ty poszedłeś do Ojca. O co byśmy prosili w imię Twoje, to uczynisz, aby Ojciec był otoczony w Tobie. O cokolwiek byśmy prosili w imię Twoje, to spełnisz."
+          },
+          {
+            "sigla": {
+              "name": "Księga Jeremiasza",
+              "number": "32,17"
+            },
+            "quote": "Ach, Panie Boże! Oto stworzyłeś niebo i ziemię wielką swoją mocą i wyciągniętym ramieniem. Żadna rzecz nie jest niemożliwa dla Ciebie."
+          },
+          {
+            "sigla": {
+              "name": "Ewangelia według św. Mateusza",
+              "number": "19,26"
+            },
+            "quote": "Dla Ciebie wszystko jest możliwe."
+          },
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "77,13-15"
+            },
+            "quote": "Rozważam wszystkie Twoje dzieła, Boże. Boże, Twoja droga jest święta; jaki bóg jest wielki jak nasz Bóg? Ty dokonujesz cudów, objawiłeś ludom swoją potęgę."
+          }
+        ]
+      },
+      "Pełen chwały i majestatu": {
+        "references": [
+          {
+            "sigla": {
+              "name": "Apokalipsa św. Jana",
+              "number": "21,23"
+            },
+            "quote": "Miastu nie trzeba słońca ni księżyca, by mu świeciły, bo Twoja chwała je oświetla, a jego lampą będzie Baranek."
+          },
+          {
+            "sigla": {
+              "name": "Księga Izajasza",
+              "number": "24,23"
+            },
+            "quote": "Już słońca mieć nie będziemy w dzień jako światła, ani jasność księżyca nie zaświeci. Księżyc się zarumieni, słońce się zawstydzi, bo zakrólujesz Ty, Panie Zastępów na górze Syjon i w Jeruzalem; wobec swych starców będziesz uwielbiony."
+          },
+          {
+            "sigla": {
+              "name": "Księga Izajasza",
+              "number": "60,19-20"
+            },
+            "quote": "Nasze słońce nie zajdzie już więcej, a księżyc nasz się nie zaćmi, bo Ty, Panie, będziesz naszą wieczną światłością, a Ty, Boże, naszą ozdobą. Skończą się dni naszej żałoby."
+          },
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "102,12"
+            },
+            "quote": "Ty, o Panie, na wieki zasiadasz na tronie, a imię Twoje trwa przez wszystkie pokolenia."
+          },
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "104,24"
+            },
+            "quote": "Jak liczne dzieła Twoje, Panie! Ty wszystko mądrze uczyniłeś: ziemia jest pełna Twych stworzeń. Niechaj Cię wielbią, Panie, wszystkie dzieła Twoje, i święci Twoi niech Cię błogosławią."
+          },
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "145,10-13"
+            },
+            "quote": "Niech cię wielbią Panie wszystkie dzieła Twoje i święci Twoi niech cię błogosławią!Niech mówią o chwale Twojego królestwa i niech głoszą Twoją potęgę, aby oznajmić ludziom Twoją potęgę i wspaniałość chwały Twego królestwa. Królestwo Twoje jest królestwem wszystkich wieków, a Twoje panowanie trwa przez wszystkie pokolenia. Pan jest wierny we wszystkich swych słowach i we wszystkich swoich dziełach święty."
+          },
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "145,3"
+            },
+            "quote": "Wielki jesteś, Panie, i godzien wielkiej chwały, a wielkość Twoja niezgłębiona."
+          },
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "19,2-3"
+            },
+            "quote": "Niebiosa głoszą Twoją chwałę, dzieło rąk Twoich nieboskłon obwieszcza. Dzień dniowi głos opowieść, a noc nocy przekazuje wiadomość."
+          },
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "29,9"
+            },
+            "quote": "Twój głos zgina dęby, ogałaca lasy, a w Twoim pałacu wszystko woła: Chwała!"
+          },
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "72,11"
+            },
+            "quote": "I oddadzą Ci pokłon wszyscy królowie, wszystkie narody będą Ci służyły."
+          },
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "8,1"
+            },
+            "quote": "O Panie, nasz Boże, jak przedziwne Twe imię po wszystkiej ziemi! Tyś swój majestat wyniósł nad niebiosa."
+          },
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "84,11"
+            },
+            "quote": "Ty jesteś hojny, darzysz łaską i chwałą, nie odmawiasz dobrodziejstw tym, co postępują bez skazy."
+          },
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "86,8-10"
+            },
+            "quote": "Nie ma wśród bogów równego Tobie, Panie, ani czegoś takiego jak Twoje dzieło. Przyjdą wszystkie ludy, które stworzyłeś, i Tobie, Panie, pokłon oddadzą, i będą sławiły Twe imię. Boś Ty jest wielki i działasz cuda: tylko Ty jesteś Bogiem."
+          },
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "96,6"
+            },
+            "quote": "Przed Tobą kroczą majestat i piękno, potęga i jasność w Twoim przybydku"
+          },
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "93,1-2"
+            },
+            "quote": "Panie królujesz, odziany w majestat; przyodziałeś się, opasawszy mocą. Taka jest Twoja ziemia, mocno ustawiona, nie będzie wstrząśnięta. Już od wieków jesteś Ty, o Boże;"
+          },
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "99,1-2"
+            },
+            "quote": "Ty Panie królujesz: drżą narody; zasiadasz na cherubach, ziemia się trzęsie. Wielki jesteś Panie na Syjonie i wyniesiony ponad wszystkie ludy"
+          }
+        ]
+      },
+      "Piękny": {
+        "references": [
+          {
+            "sigla": {
+              "name": "Księga Izajasza",
+              "number": "4,2"
+            },
+            "quote": "Twoja Odrośl stanie się ozdobą i chwałą, a owoc ziemi przepychem i krasą dla ocalałych z Izraela"
+          },
+          {
+            "sigla": {
+              "name": "Księga Izajasza",
+              "number": "9,5"
+            },
+            "quote": "I nazwą cię: Cudowny Doradca"
+          },
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "119,96"
+            },
+            "quote": "Zobaczyłem, że wszelka doskonałość ma granice: Twoje przykazanie sięga bardzo daleko"
+          },
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "45,3"
+            },
+            "quote": "Tyś najpiękniejszy z synów ludzkich, wdzięk rozlał się na twoich wargach: dlatego pobłogosławił tobie Bóg na wieki"
+          },
+          {
+            "sigla": {
+              "name": "Księga Izajasza",
+              "number": "9,5"
+            },
+            "quote": "Jesteś pełen światła - potężniejszy niż góry odwieczne"
+          }
+        ]
+      },
+      "Pokorny": {
+        "references": [
+          {
+            "sigla": {
+              "name": "List do Filipian",
+              "number": "2,6-8"
+            },
+            "quote": "Bo Ty, istniejąc w postaci Bożej, nie skorzystałeś ze sposobności, aby być równym Bogu, lecz samego siebie uniżyłeś, przyjąwszy postać sługi, stawszy się podobnym do ludzi. A w zewnętrznym przejawie uznany za człowieka, uniżyłeś samego siebie, stawszy się posłusznym aż do śmierci, aż do śmierci krzyżowej."
+          },
+          {
+            "sigla": {
+              "name": "Ewangelia według św. Mateusza",
+              "number": "11,28-30"
+            },
+            "quote": "Przyjdźcie do Mnie wszyscy, którzy utrudzeni i obciążeni jesteście, a Ja was pokrzepię. Weźcie moje jarzmo na siebie i uczcie się ode Mnie, bo jestem łagodny i pokorny sercem, a znajdziecie ukojenie dla dusz waszych. Albowiem jarzmo moje jest słodkie, a moje brzemię lekkie."
+          },
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "113,2-6"
+            },
+            "quote": "Niech imię Pańskie będzie błogosławione odtąd i aż na wieki! Od wschodu słońca aż po zachód jego niech imię Pańskie będzie pochwalone! Pan jest wywyższony ponad wszystkie ludy, Jego chwała sięga ponad niebiosa. Któż jak nasz Pan Bóg, co siedzibę ma w górze, co w dół spogląda na niebo i na ziemię?"
+          },
+          {
+            "sigla": {
+              "name": "Księga Zachariasza",
+              "number": "9,9"
+            },
+            "quote": "Raduj się wielce, Córo Syjonu, wołaj radośnie, Córo Jeruzalem! Oto Król twój idzie do ciebie, sprawiedliwy i zwycięski. Pokorny - jedzie na osiołku, na oślątku, źrebięciu oślicy."
+          }
+        ]
+      },
+      "Potężny": {
+        "references": [
+          {
+            "sigla": {
+              "name": "Księga Nahuma",
+              "number": "1,5"
+            },
+            "quote": "Przed Tobą drżą góry i pagórki się rozpływają; a ziemia, ląd, i wszyscy jego mieszkańcy trzęsą się przed Twoim obliczem."
+          },
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "2,9"
+            },
+            "quote": "Żelazną rózgą będziesz nimi rządzić, jak naczynie garncarza ich pokruszysz."
+          },
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "33,6-12"
+            },
+            "quote": "Przez słowo Twoje powstały niebiosa, a wszystkie ich zastępy przez tchnienie ust. Ty gromadzisz wody morskie jak w worze, oceany umieszczasz w zbiorowiskach. Niech się Ciebie boi, niech się Ciebie lękają wszyscy mieszkańcy ziemi. Bo Ty przemówiłeś, a wszystko powstało; Ty rozkazałeś, a zaczęło istnieć. Udaremniasz zamiary narodów; wniwecz obracasz zamysły ludów. 11 Zamiar twój Panie trwa na wieki; zamysły Twego serca - poprzez pokolenia. Szczęśliwy lud, którego Bogiem jesteś Panie - naród, który wybrałeś na dziedzictwo dla siebie."
+          },
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "44,2-3"
+            },
+            "quote": "Boże, słyszeliśmy na własne uszy: ojcowie nasi nam opowiedzieli o czynie, którego za ich dni dokonałeś, za dni starożytnych. Ty własną ręką wygnałeś pogan, a ich zasadziłeś, starłeś narody, a im dałeś przestrzeń"
+          },
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "74,15-17"
+            },
+            "quote": "Ty otworzyłeś źródła i strumienie; Ty wysuszyłeś rzeki stale płynące. Twoim jest dzień i noc jest Twoja; Ty światło i słońce utwierdziłeś11. Ty ustanowiłeś wszystkie granice ziemi; Ty utworzyłeś lato i zimę."
+          },
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "97,1-6"
+            },
+            "quote": "Ty królujesz: wesel się, ziemio, radujcie się, mnogie wyspy! Obłok i ciemność wokoło Ciebie, sprawiedliwość i prawo podstawą Twego tronu. Ogień idzie przed Twym obliczem i pożera dokoła Twoich nieprzyjaciół. Twoje błyskawice świat rozświecają, a ziemia patrzy i drży. Góry topnieją jak wosk przed Twoim obliczem, przed obliczem Władcy wszystkiej ziemi. Niebiosa głoszą Twoją sprawiedliwość, a wszystkie ludy widzą Twoją chwałę."
+          }
+        ]
+      },
+      "Sprawiedliwy i  prawy": {
+        "references": [
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "145,17"
+            },
+            "quote": "Ty Panie jesteś sprawiedliwy na wszystkich swych drogach i łaskawy we wszystkich swoich dziełach."
+          },
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "36,7"
+            },
+            "quote": "Twoja sprawiedliwość jak najwyższe góry: Twoje wyroki - jak Wielka Otchłań."
+          },
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "45,7"
+            },
+            "quote": "Twój tron o Boże trwa wiecznie, berło Twego królestwa - berło sprawiedliwe."
+          },
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "71,19"
+            },
+            "quote": "Głosić będę sprawiedliwość Twą, Boże, sięgającą wysoko, którą tak wielkich dzieł dokonałeś: o Boże, któż jest równy Tobie?."
+          },
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "75,2-3"
+            },
+            "quote": "Wysławiamy Cię, Boże, wysławiamy, wzywamy Twego imienia, opowiadamy Twe cuda. Gdy wyznaczysz porę: odbędziesz sąd sprawiedliwy.."
+          },
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "9,4-5"
+            },
+            "quote": "Bo wrogowie moi się cofają, giną sprzed twojego oblicza. Bo ty przeprowadziłeś mój sąd i wyrok zasiadając na tronie - sędzio sprawiedliwy."
+          },
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "9,8-9"
+            },
+            "quote": "A ty Panie zasiadasz na wieki, swój tron ustawiasz, by sądzić. Sam będziesz sądził świat sprawiedliwie, wydasz narodom bezstronny wyrok."
+          },
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "96,10"
+            },
+            "quote": "Ty Panie jesteś królem. Umocniłeś świat, by się nie poruszył: ze słusznością wymierzasz ludom sprawiedliwoś."
+          },
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "96,13"
+            },
+            "quote": "Ty Panie nadchodzisz, aby sądzić ziemię. Będziesz sądził świat sprawiedliwie, z wiernością swą - narody."
+          },
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "97,2"
+            },
+            "quote": "Obłok i ciemność wokoło Ciebie. Sprawiedliwość i prawo podstawą Twego tronu."
+          },
+          {
+            "sigla": {
+              "name": "Księga Powtórzonego Prawa",
+              "number": "32,3-4"
+            },
+            "quote": "Głosić chcę imię Twoje Panie: uznajcie wielkość Boga naszego; Tyś Skałą, dzieło Twoje doskonałe, bo wszystkie drogi Twoje są słuszne; Tyś Bogiem wiernym, a nie zwodniczym, Ty jesteś sprawiedliwy i prawy."
+          }
+        ]
+      },
+      "Szczęśliwy": {
+        "references": [
+          {
+            "sigla": {
+              "name": "List do Hebrajczyków",
+              "number": "1,9"
+            },
+            "quote": "Umiłowałeś sprawiedliwość, a znienawidziłeś nieprawość, dlatego namaścil Cię, Boże Bóg Twój olejkiem radośći bardziej niż Twych towarzyszy"
+          },
+          {
+            "sigla": {
+              "name": "List do Hebrajczyków",
+              "number": "12,2"
+            },
+            "quote": "Patrzę na Ciebie Jezu, który nam w wierze przewodzisz i ją wydoskonalasz. Ty to zamiast radości, którą Ci obiecywano, przecierpiałeś krzyż, nie bacząc na [jego] hańbę, i zasiadłeś po prawicy tronu Boga"
+          },
+          {
+            "sigla": {
+              "name": "Ewangelia według św. Jana",
+              "number": "15,11"
+            },
+            "quote": "To nam powiedziałeś, aby radość Twoja w nas była i aby radość nasza była pełna."
+          },
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "45,8"
+            },
+            "quote": "Miłujesz sprawiedliwość, wstrętna ci nieprawość, dlatego Bóg, twój Bóg namaścił ciebie olejkiem radośći hojniej niż równych ci losem."
+          }
+        ]
+      },
+      "Widzący i troszczący się": {
+        "references": [
+          {
+            "sigla": {
+              "name": "Druga Księga Kronik",
+              "number": "16,9"
+            },
+            "quote": "Albowiem oczy Twoje obiegają całą ziemię, by wspierać tych któzy mają wobec ciebie serce szczere"
+          },
+          {
+            "sigla": {
+              "name": "Druga Księga Kronik",
+              "number": "16,9"
+            },
+            "quote": "Albowiem oczy Twoje obiegają całą ziemię, by wspierać"
+          },
+          {
+            "sigla": {
+              "name": "Druga Księga Kronik",
+              "number": "16,9"
+            },
+            "quote": "Albowiem oczy Twoje obiegają całą ziemię, by wspierać tych którzy mają wobec ciebie serce szczere"
+          },
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "139,1-10"
+            },
+            "quote": " Panie, przenikasz i znasz mnie, Ty wiesz, kiedy siadam i wstaję. Z daleka przenikasz moje zamysły, 3 widzisz moje działanie i mój spoczynek i wszystkie moje drogi są Ci znane. Choć jeszcze nie ma słowa na języku: Ty, Panie, już znasz je w całości. Ty ogarniasz mnie zewsząd i kładziesz na mnie swą rękę. Zbyt dziwna jest dla mnie Twa wiedza, zbyt wzniosła: nie mogę jej pojąć. Gdzież się oddalę przed Twoim duchem? Gdzie ucieknę od Twego oblicza? Gdy wstąpię do nieba, tam jesteś; jesteś przy mnie, gdy się w Szeolu położę. Gdybym przybrał skrzydła jutrzenki, zamieszkał na krańcu morza: tam również Twa ręka będzie mnie wiodła i podtrzyma mię Twoja prawica. "
+          },
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "33,13-15"
+            },
+            "quote": "Panie, z nieba spójrz, ujrzyj wszystkich ludzi. Z miejsca, gdzie przebywasz, spójrz na wszystkich mieszkańców ziemi, Ty, który nad nami wszystkimi trwasz. Ty sam kształtujesz serca każdego z nas i bacznie przyglądasz się wszystkim naszym dziełom."
+          },
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "33,18"
+            },
+            "quote": "Oto oczy Twoje nad tymi, którzy się Ciebie boją, nad tymi, którzy ufają Twojej łasce,"
+          },
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "34,16"
+            },
+            "quote": "Oczy Twoje zwrócone są ku sprawiedliwym, a Twoje uszy na ich wołanie."
+          },
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "38,10"
+            },
+            "quote": "Wszelkie me pragnienie i moje wzdychanie nie jest przed Tobą zakryte."
+          },
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "56,9"
+            },
+            "quote": "Ty zapisałeś moje życie tułacze; przechowałeś Ty łzy moje w swoim bukłaku: <czyż nie są spisane w Twej księdze?."
+          }
+        ]
+      }
+    }
+  },
+  "Kim Ty Jesteś dla mnie": {
+    "Bogiem który jest obecny": {
+      "references": [
+        {
+          "sigla": {
+            "name": "Księga Psalmów",
+            "number": "102,29"
+          },
+          "quote": " Synowie Twoich sług będą mogli osiąść na stałe i potomstwo ich będzie trwało wobec Ciebie."
+        },
+        {
+          "sigla": {
+            "name": "Księga Psalmów",
+            "number": "16,11"
+          },
+          "quote": "Ukażesz mi ścieżkę życia, pełnię radości u Ciebie, rozkosze na wieki po Twojej prawicy"
+        },
+        {
+          "sigla": {
+            "name": "Księga Psalmów",
+            "number": "17,8"
+          },
+          "quote": "Strzeż mnie jak źrenicy oka w cieniu Twych skrzydeł mnie ukryj."
+        },
+        {
+          "sigla": {
+            "name": "Księga Psalmów",
+            "number": "21,7b"
+          },
+          "quote": "Napełniasz go radością przed Twoim obliczem."
+        }
+      ]
+    }
+  },
+  "Wyznanie i Proklamacja": {
+    "Kim Jesteś": {
+      "Przewodnikiem": {
+        "references": [
+          {
+            "sigla": {
+              "name": "Księga Izajasza",
+              "number": "30,19-21"
+            },
+            "quote": "nie będziesz gorzko płakał. Rychło okaże ci On łaskę na głos twojej prośby. Ledwie usłyszy, odpowie ci. 20 Choćby ci dał Pan chleb ucisku i wodę utrapienia, twój Nauczyciel już nie odstąpi, ale oczy twoje patrzeć będą na twego Mistrza. 21 Twoje uszy usłyszą słowa rozlegające się za tobą: To jest droga, idźcie nią!"
+          },
+          {
+            "sigla": {
+              "name": "Księga Przysłów",
+              "number": "16,9"
+            },
+            "quote": "Serce człowieka obmyśla drogę, lecz Pan utwierdza kroki."
+          },
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "139,9-10"
+            },
+            "quote": "Gdybym przybrał skrzydła jutrzenki, zamieszkał na krańcu morza: tam również Twa ręka będzie mnie wiodła i podtrzyma mię Twoja prawica."
+          },
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "23,3"
+            },
+            "quote": "orzeźwia moją duszę. Wiedzie mnie po właściwych ścieżkach przez wzgląd na swoje imię."
+          },
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "37,23-24"
+            },
+            "quote": "Pan umacnia kroki człowieka i w jego drodze ma upodobanie. A choćby upadł, to nie będzie leżał, bo rękę jego Pan podtrzymuje"
+          },
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "57,3"
+            },
+            "quote": "Wołam do Boga Najwyższego, do Boga, który czyni mi dobro."
+          },
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "73,23-24"
+            },
+            "quote": "Lecz ja zawsze będę z Tobą: Tyś ujął moją prawicę prowadzisz mnie według swojej rady i przyjmujesz mię na koniec do chwały."
+          }
+        ]
+      },
+      "Stałym Towarzyszem": {
+        "references": [
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "139,1-10"
+            },
+            "quote": "Panie, przenikasz i znasz mnie,Ty wiesz, kiedy siadam i wstaję. Z daleka przenikasz moje zamysły,widzisz moje działanie i mój spoczynek i wszystkie moje drogi są Ci znane.Choć jeszcze nie ma słowa na języku:Panie, już znasz je w całości. Ty ogarniasz mnie zewsząd i kładziesz na mnie swą rękę.Zbyt dziwna jest dla mnie Twa wiedza,zbyt wzniosła: nie mogę jej pojąć. Gdzież się oddalę przed Twoim duchem? Gdzie ucieknę od Twego oblicza? Gdy wstąpię do nieba, tam jesteś; jesteś przy mnie, gdy się w Szeolu położę. Gdybym przybrał skrzydła jutrzenki, zamieszkał na krańcu morza: tam również Twa ręka będzie mnie wiodła i podtrzyma mię Twoja prawica."
+          }
+        ]
+      },
+      "Moim udziałem": {
+        "references": [
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "11,7"
+            },
+            "quote": "Bo Pan jest sprawiedliwy, kocha sprawiedliwość; ludzie prawi zobaczą Jego oblicze. "
+          },
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "119,57"
+            },
+            "quote": "Moim działem jest Pan -mówię, by zachować Twoje słowa. "
+          },
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "16,2"
+            },
+            "quote": "Tyś jest Panem moim; nie ma dla mnie dobra poza Tobą. "
+          },
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "16,5-6"
+            },
+            "quote": "Pan częścią dziedzictwa i kielicha mego: To właśnie ty mój los zabezpieczasz. sznur mierniczy wyznaczył mi dział wspaniały i bardzo jest mi miłe to mój moje dziedzictwo. "
+          },
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "17,15"
+            },
+            "quote": "Ja zaś w sprawiedliwości ujrzę Twe oblicze, powstając ze snu nasycę się Twoim widokiem"
+          },
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "3,3"
+            },
+            "quote": "Wielu jest tych co mówią o mnie: nie ma dla niego zbawienia w Bogu"
+          },
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "73,25-26"
+            },
+            "quote": "Kogo prócz Ciebie mam w niebie? Gdy jestem z Tobą, nie cieszy mnie ziemia. Niszczeje moje ciało i serce, Bóg jest opoką mego serca i mym udziałem na wieki"
+          },
+          {
+            "sigla": {
+              "name": "Księga Rodzaju",
+              "number": "15,1"
+            },
+            "quote": "Po tych wydarzeniach Pan tak powiedział do Abrama podczas widzenia:«Nie obawiaj się, Abramie, bo Ja jestem twoim obrońcą nagroda twoja będzie sowita»."
+          }
+        ]
+      },
+      "Źródłem pomyślności": {
+        "references": [
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "108,12-13"
+            },
+            "quote": "Czyż nie Ty, o Boże, nas odrzuciłeś i już nie wychodzisz, Boże, z naszymi wojskami? Daj nam pomoc przeciw nieprzyjacielowi, bo ludzkie ocalenie jest zawodne."
+          },
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "121,1-3"
+            },
+            "quote": "Wznoszę swe oczy ku górom:Skądże nadejdzie mi pomoc? Pomoc mi przyjdzie od Pana,co stworzył niebo i ziemię On nie pozwoli zachwiać się twej nodze ani się zdrzemnie Ten, który cię strzeże."
+          },
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "127,1-2"
+            },
+            "quote": "Jeżeli Pan domu nie zbuduje,na próżno się trudzą ci, którzy go wznoszą. Jeżeli Pan miasta nie ustrzeże, strażnik czuwa daremnie. Daremnym jest dla was wstawać przed świtem, wysiadywać do późna - dla was, którzy jecie chleb zapracowany ciężko; tyle daje On i we śnie tym, których miłuje."
+          },
+          {
+            "sigla": {
+              "name": "Księga Psalmów",
+              "number": "146,3"
+            },
+            "quote": "Nie pokładajcie ufności w książętach ani w człowieku, u którego nie ma wybawienia"
+          }
+        ]
+      }
+    }
+  }
+}

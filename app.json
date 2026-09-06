@@ -1,0 +1,48 @@
+{
+  "expo": {
+    "name": "Podręcznik Adoracji",
+    "slug": "podrecznik-adoracji",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "cover",
+      "backgroundColor": "#181226"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.podrecznik.adoracji"
+    },
+    "android": {
+      "package": "com.podrecznik.adoracji",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#181226"
+      },
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.MODIFY_AUDIO_SETTINGS",
+        "android.permission.FOREGROUND_SERVICE",
+        "android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-audio",
+      "expo-status-bar",
+      "expo-video"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "cc0e923f-5387-4753-8ae9-2bdc83dfc12f"
+      }
+    }
+  }
+}
