@@ -20,8 +20,15 @@ export interface Subsection {
   [subsubsection: string]: Subsubsection;
 }
 
+// Wartością pod kluczem podsekcji bywa albo kolejny poziom zagnieżdżenia
+// (Subsection - kategorie z odsyłaczami wewnątrz), albo, gdy dana kategoria
+// nie ma sensownego dalszego podziału, odsyłacze wprost (Subsubsection) -
+// tak jak kategorie w "adoracja" i "Wyznanie i Proklamacja" po usunięciu
+// zbędnego, pojedynczego opakowania "Kim Jesteś Boże"/"Kim Jesteś".
+export type SectionEntry = Subsection | Subsubsection;
+
 export interface Section {
-  [subsection: string]: Subsection;
+  [subsection: string]: SectionEntry;
 }
 
 export interface GuidanceData {

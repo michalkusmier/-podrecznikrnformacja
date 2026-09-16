@@ -148,10 +148,18 @@ export default function HomeScreen({ navigation, route }: Props) {
       ? currentSubSection
       : subSectionOptions[0] ?? '';
 
+  const activeSubSectionNode = selectedData && activeSubSection ? selectedData[activeSubSection] : null;
+
+  // Niektóre kategorie mają odsyłacze wprost pod sobą (references), inne
+  // dzielą się jeszcze na dalsze podkategorie - drugi poziom pickera pojawia
+  // się tylko wtedy, gdy jest faktycznie czym wypełnić wybór (nie pokazujemy
+  // pickera z jedną, bezużyteczną pozycją, gdy kategoria to od razu liść).
+  const isLeafSubSection = !!activeSubSectionNode && 'references' in activeSubSectionNode;
+
   const subSubSectionOptions = useMemo(() => {
-    if (!selectedData || !activeSubSection) return [];
-    return Object.keys(selectedData[activeSubSection] ?? {});
-  }, [selectedData, activeSubSection]);
+    if (!activeSubSectionNode || isLeafSubSection) return [];
+    return Object.keys(activeSubSectionNode);
+  }, [activeSubSectionNode, isLeafSubSection]);
 
   const activeSubSubSection =
     currentSubSubSection && subSubSectionOptions.includes(currentSubSubSection)
@@ -159,9 +167,12 @@ export default function HomeScreen({ navigation, route }: Props) {
       : subSubSectionOptions[0] ?? '';
 
   const filteredData: Reference[] = useMemo(() => {
-    if (!selectedData || !activeSubSection || !activeSubSubSection) return [];
-    return selectedData[activeSubSection]?.[activeSubSubSection]?.references ?? [];
-  }, [selectedData, activeSubSection, activeSubSubSection]);
+    if (!activeSubSectionNode) return [];
+    if (isLeafSubSection) return (activeSubSectionNode as { references: Reference[] }).references ?? [];
+    if (!activeSubSubSection) return [];
+    return (activeSubSectionNode as Record<string, { references: Reference[] }>)[activeSubSubSection]
+      ?.references ?? [];
+  }, [activeSubSectionNode, isLeafSubSection, activeSubSubSection]);
 
   function animateLayout() {
     // Płynne zwinięcie/rozwinięcie siatki kafelków. Na webie (podgląd w
@@ -291,6 +302,12 @@ export default function HomeScreen({ navigation, route }: Props) {
             <CzytaniaBrowser goToQueue={displaySelectedItems} />
           ) : (
             <ScrollView ref={scrollRef} contentContainerStyle={styles.content}>
+              {(currentSection === ADORACJA_KEY || currentSection === PROKLAMACJA_KEY) && (
+                <Text style={[styles.sectionQuestion, { color: sectionColor }]}>
+                  {currentSection === ADORACJA_KEY ? 'Kim jesteś, Boże?' : 'Kim jesteś dla mnie?'}
+                </Text>
+              )}
+
               {(currentSection === ADORACJA_KEY || currentSection === PROKLAMACJA_KEY) && (
                 <View style={styles.modeSwitchRow}>
                   {[
@@ -458,6 +475,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  sectionQuestion: { fontSize: 18, fontWeight: '700', textAlign: 'center', marginBottom: 12 },
   modeSwitchRow: { flexDirection: 'row', gap: 8, marginBottom: 12 },
   modePill: {
     flex: 1,

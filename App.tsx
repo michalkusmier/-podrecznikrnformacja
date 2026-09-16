@@ -1,6 +1,7 @@
 // App.tsx
-import React from 'react';
+import React, { useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
+import { setAudioModeAsync } from 'expo-audio';
 import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -10,6 +11,9 @@ import { Ionicons } from '@expo/vector-icons';
 
 import { ThemeProvider, useAppTheme } from './src/context/ThemeContext';
 import { SelectionProvider, useSelection } from './src/context/SelectionContext';
+import { PrayerTimerProvider } from './src/context/PrayerTimerContext';
+import GlobalPrayerBadge from './src/components/GlobalPrayerBadge';
+import { navigationRef } from './src/navigation/navigationRef';
 import type { MainStackParamList, TabParamList } from './src/types';
 
 import HomeScreen from './src/screens/HomeScreen';
@@ -179,19 +183,34 @@ function Navigation() {
   };
 
   return (
-    <NavigationContainer theme={navTheme}>
+    <NavigationContainer ref={navigationRef} theme={navTheme}>
       <StatusBar style={isDark ? 'light' : 'dark'} />
       <TabNavigator />
+      <GlobalPrayerBadge />
     </NavigationContainer>
   );
 }
 
 export default function App() {
+  // Ustawione RAZ, globalnie - bez tego cicha muzyka w tle podczas modlitwy
+  // (ambient_candle.mp3) może nie być wcale słyszalna: na iOS domyślna
+  // sesja audio nie zawsze gra, gdy telefon jest wyciszony przełącznikiem
+  // dzwonka, a bez jawnego trybu "mixWithOthers" odtwarzacz wideo świecy
+  // (zawsze wyciszony, ale wciąż aktywujący sesję audio) może wygaszać
+  // dźwięk odtwarzacza muzyki w tle.
+  useEffect(() => {
+    setAudioModeAsync({ playsInSilentMode: true, interruptionMode: 'mixWithOthers' }).catch(() => {
+      // Brak dźwięku nie powinien wywalać appki - w najgorszym razie muzyka w tle się nie odezwie.
+    });
+  }, []);
+
   return (
     <SafeAreaProvider>
       <ThemeProvider>
         <SelectionProvider>
-          <Navigation />
+          <PrayerTimerProvider>
+            <Navigation />
+          </PrayerTimerProvider>
         </SelectionProvider>
       </ThemeProvider>
     </SafeAreaProvider>

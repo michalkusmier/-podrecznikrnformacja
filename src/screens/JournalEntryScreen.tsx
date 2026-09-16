@@ -1,5 +1,5 @@
 // src/screens/JournalEntryScreen.tsx
-import React, { useEffect, useMemo, useState, useCallback } from 'react';
+import React, { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -16,6 +16,7 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { MainStackParamList, SavedReference, FormacjaJournalSource } from '../types';
 import { toRoman } from '../data/formacja';
 import { useAppTheme } from '../context/ThemeContext';
+import { getDraft, setDraft, clearDraft, type JournalDraft } from '../services/draftService';
 import {
   addFormDataEntry,
   deleteFormDataEntry,
@@ -49,7 +50,20 @@ export default function JournalEntryScreen({ navigation, route }: Props) {
   const entryId = route.params?.entryId;
   const isEditing = !!entryId;
 
-  const [loading, setLoading] = useState(isEditing);
+  // Klucz szkicu: dla edycji istniejącego wpisu to jego id; dla nowego wpisu
+  // powiązanego z dniem Formacji - id tego dnia (żeby "Zapisz przemyślenie"
+  // z różnych dni nie nadpisywały sobie nawzajem szkiców); w pozostałych
+  // przypadkach - stały klucz "new".
+  const draftKey = useMemo(
+    () =>
+      entryId ??
+      (route.params?.formacjaSource ? `new-formacja-${route.params.formacjaSource.dayId}` : 'new'),
+    [entryId, route.params?.formacjaSource]
+  );
+
+  const todayLabel = useMemo(() => formatDatePL(new Date()), []);
+
+  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
   const [date, setDate] = useState('');
@@ -59,36 +73,69 @@ export default function JournalEntryScreen({ navigation, route }: Props) {
   const [references, setReferences] = useState<SavedReference[]>([]);
   // Przy nowym wpisie bierzemy powiązanie z parametrów nawigacji (ekran dnia
   // Formacji, przycisk "Zapisz przemyślenie"); przy edycji - z wczytanego
-  // wpisu. W obu przypadkach tylko do odczytu - nie da się go tu zmienić.
+  // wpisu (albo szkicu, jeśli już istniał). W obu przypadkach tylko do
+  // odczytu - nie da się go tu zmienić.
   const [formacjaSource, setFormacjaSource] = useState<FormacjaJournalSource | undefined>(
     route.params?.formacjaSource
   );
 
-  const todayLabel = useMemo(() => formatDatePL(new Date()), []);
+  // Dopóki to false, zmiany pól NIE są zapisywane do szkicu - inaczej
+  // pierwszy render (zanim skończymy wczytywać szkic/wpis z AsyncStorage)
+  // mógłby nadpisać już istniejący szkic pustymi, domyślnymi wartościami.
+  const initializedRef = useRef(false);
 
+  // Wczytanie danych ekranu to ZAWSZE, w tej kolejności: 1) szkic (ktoś mógł
+  // zacząć pisać i wyjść bez zapisywania), 2) jeśli szkicu nie ma, a to
+  // edycja - zapisany wpis z AsyncStorage, 3) w pozostałym przypadku (nowy
+  // wpis, brak szkicu) - puste pola z dzisiejszą datą. Szkic trzymany jest w
+  // AsyncStorage (nie w pamięci komponentu/kontekstu), więc przetrwa
+  // odmontowanie tego ekranu przez DOWOLNĄ ścieżkę nawigacji.
   useEffect(() => {
-    if (!entryId) {
-      setDate(todayLabel);
-      return;
-    }
     let cancelled = false;
-    getFormDataEntry(entryId).then((entry) => {
+    initializedRef.current = false;
+    setLoading(true);
+    (async () => {
+      const draft = await getDraft<JournalDraft>(draftKey);
       if (cancelled) return;
-      if (entry) {
-        setDate(entry.date);
-        setNotes(entry.notes);
-        setExternalLight(entry.externalLight);
-        setInternalLight(entry.internalLight);
-        setReferences(entry.references ?? []);
-        setFormacjaSource(entry.formacjaSource);
+      if (draft) {
+        setDate(draft.date);
+        setNotes(draft.notes);
+        setExternalLight(draft.externalLight);
+        setInternalLight(draft.internalLight);
+        setReferences(draft.references);
+        setFormacjaSource(draft.formacjaSource ?? route.params?.formacjaSource);
+      } else if (entryId) {
+        const entry = await getFormDataEntry(entryId);
+        if (cancelled) return;
+        if (entry) {
+          setDate(entry.date);
+          setNotes(entry.notes);
+          setExternalLight(entry.externalLight);
+          setInternalLight(entry.internalLight);
+          setReferences(entry.references ?? []);
+          setFormacjaSource(entry.formacjaSource);
+        }
+      } else {
+        setDate(todayLabel);
       }
+      if (cancelled) return;
       setLoading(false);
-    });
+      initializedRef.current = true;
+    })();
     return () => {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [entryId]);
+  }, [entryId, draftKey]);
+
+  // Zapamiętuje bieżący stan formularza jako szkic przy KAŻDEJ zmianie -
+  // dzięki temu "Anuluj"/"Wstecz" (patrz goBack niżej) nie tracą wpisanych
+  // danych, tylko chowają je do czasu ponownego otwarcia tego samego wpisu.
+  useEffect(() => {
+    if (!initializedRef.current) return;
+    setDraft<JournalDraft>(draftKey, { date, notes, externalLight, internalLight, references, formacjaSource });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [date, notes, externalLight, internalLight, references, formacjaSource]);
 
   function removeReference(index: number) {
     setReferences((prev) => prev.filter((_, i) => i !== index));
@@ -146,6 +193,8 @@ export default function JournalEntryScreen({ navigation, route }: Props) {
       } else {
         await addFormDataEntry(payload);
       }
+      // Wpis realnie zapisany - szkic nie jest już potrzebny.
+      await clearDraft(draftKey);
       goBack();
     } finally {
       setSaving(false);
@@ -161,6 +210,7 @@ export default function JournalEntryScreen({ navigation, route }: Props) {
         style: 'destructive',
         onPress: async () => {
           await deleteFormDataEntry(entryId);
+          await clearDraft(draftKey);
           goBack();
         },
       },

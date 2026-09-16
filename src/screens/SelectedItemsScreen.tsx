@@ -1,5 +1,5 @@
 // src/screens/SelectedItemsScreen.tsx
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -13,12 +13,14 @@ import {
   UIManager,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useEventListener } from 'expo';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import { useAudioPlayer } from 'expo-audio';
 import { useFocusEffect } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { MainStackParamList } from '../types';
 import { useAppTheme } from '../context/ThemeContext';
+import { usePrayerTimer } from '../context/PrayerTimerContext';
 import { formatVerseNumber } from '../utils/formatVerse';
 import CountdownTimer from '../components/CountdownTimer';
 
@@ -26,6 +28,17 @@ type Props = NativeStackScreenProps<MainStackParamList, 'SelectedItems'>;
 
 const candleSource = require('../../assets/candle.mp4');
 const ambientSource = require('../../assets/ambient_candle.mp3');
+
+// Nagranie świec (candle.mp4) NIE jest spokojną, ciągłą pętlą - w ostatnich
+// ~10 sekundach ktoś na filmie faktycznie zdmuchuje świece jedna po drugiej.
+// Zwykłe `loop: true` powtarzałoby więc całą sekwencję "płonie -> gaśnie ->
+// nagle znów płonie" co ~51 sekund. Zamiast tego zapętlamy programowo tylko
+// spokojny, płonący fragment (0 - CANDLE_LOOP_OUT_SECONDS) przez cały czas
+// modlitwy, a końcówkę ze zdmuchiwaniem puszczamy naturalnie dopiero wtedy,
+// gdy do końca ustawionego czasu zostaje mniej niż ona trwa - świece gasną
+// więc mniej więcej w momencie, w którym kończy się odliczanie.
+const CANDLE_LOOP_OUT_SECONDS = 41;
+const CANDLE_TAIL_DURATION_MS = 10_000;
 
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
@@ -36,9 +49,18 @@ if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental
 export default function SelectedItemsScreen({ route, navigation }: Props) {
   const { colors } = useAppTheme();
   const { selectedItems } = route.params;
+  const { endTime, startTimer } = usePrayerTimer();
 
-  const [minutes, setMinutes] = useState(10);
-  const [promptVisible, setPromptVisible] = useState(true);
+  // Czy modlitwa jest już w toku (np. wracamy na ten ekran po "Wstecz" albo
+  // po "Dalej" i powrocie) - jeśli tak, NIE pytamy ponownie o czas i nie
+  // zerujemy odliczania, tylko pokazujemy realnie pozostały czas. Liczone
+  // tylko raz przy montowaniu - endTime samo w sobie tyka dalej niezależnie.
+  const sessionActiveOnMount = endTime !== null && endTime > Date.now();
+
+  const [minutes, setMinutes] = useState(() =>
+    sessionActiveOnMount && endTime ? Math.max(1, Math.round((endTime - Date.now()) / 60_000)) : 10
+  );
+  const [promptVisible, setPromptVisible] = useState(!sessionActiveOnMount);
   const [draftMinutes, setDraftMinutes] = useState('10');
   const [musicOn, setMusicOn] = useState(true);
 
@@ -50,10 +72,65 @@ export default function SelectedItemsScreen({ route, navigation }: Props) {
   const [dismissedIndices, setDismissedIndices] = useState<Set<number>>(new Set());
   const remainingCount = selectedItems.length - dismissedIndices.size;
 
+  // Bezwzględny moment zakończenia do wyświetlenia - dopóki modlitwa nie
+  // zostanie potwierdzona w modalu (pierwsze wejście na ekran), licznik jest
+  // i tak schowany pod modalem, więc to tylko wartość zastępcza.
+  const displayEndTime = endTime ?? Date.now() + minutes * 60_000;
+  // Zawsze aktualna wartość dostępna wewnątrz listenera zdarzeń wideo
+  // (patrz niżej) bez potrzeby ponownej subskrypcji przy każdej zmianie.
+  const displayEndTimeRef = useRef(displayEndTime);
+  displayEndTimeRef.current = displayEndTime;
+
   const player = useVideoPlayer(candleSource, (p) => {
-    p.loop = true;
+    p.loop = false;
     p.muted = true;
+    p.audioMixingMode = 'mixWithOthers';
+    p.timeUpdateEventInterval = 0.25;
     p.play();
+  });
+
+  // Czy końcowa sekwencja zdmuchiwania świec już wystartowała w TEJ sesji
+  // modlitwy - po jej starcie przestajemy ingerować w odtwarzanie i
+  // pozwalamy filmowi dograć naturalnie do końca (zgaszone świece).
+  const candleTailStartedRef = useRef(false);
+
+  // Nowa sesja modlitwy (albo pierwsze wejście na ekran) - świeca zaczyna
+  // płonąć od nowa, od spokojnego początku nagrania.
+  useEffect(() => {
+    candleTailStartedRef.current = false;
+    try {
+      player.currentTime = 0;
+      player.play();
+    } catch (e) {
+      // odtwarzacz mógł jeszcze nie być gotowy - nic nie robimy.
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [endTime]);
+
+  useEventListener(player, 'timeUpdate', ({ currentTime }) => {
+    if (candleTailStartedRef.current) return;
+
+    const remainingMs = displayEndTimeRef.current - Date.now();
+
+    if (remainingMs <= CANDLE_TAIL_DURATION_MS) {
+      candleTailStartedRef.current = true;
+      if (currentTime < CANDLE_LOOP_OUT_SECONDS) {
+        try {
+          player.currentTime = CANDLE_LOOP_OUT_SECONDS;
+        } catch (e) {
+          // odtwarzacz mógł już zostać zwolniony - ignorujemy.
+        }
+      }
+      return;
+    }
+
+    if (currentTime >= CANDLE_LOOP_OUT_SECONDS) {
+      try {
+        player.currentTime = 0;
+      } catch (e) {
+        // odtwarzacz mógł już zostać zwolniony - ignorujemy.
+      }
+    }
   });
 
   // ZNANY PROBLEM Androida (release build) z expo-video: odtwarzacz czasem
@@ -148,9 +225,9 @@ export default function SelectedItemsScreen({ route, navigation }: Props) {
 
   function confirmMinutes() {
     const parsed = parseInt(draftMinutes, 10);
-    if (!isNaN(parsed) && parsed >= 0) {
-      setMinutes(parsed);
-    }
+    const value = !isNaN(parsed) && parsed >= 0 ? parsed : minutes;
+    setMinutes(value);
+    startTimer(value);
     setPromptVisible(false);
   }
 
@@ -164,12 +241,16 @@ export default function SelectedItemsScreen({ route, navigation }: Props) {
           nativeControls={false}
         />
         <View style={styles.timerOverlay}>
-          <CountdownTimer startInSeconds={minutes * 60} />
+          <CountdownTimer endTime={displayEndTime} />
         </View>
         <Pressable
           style={[styles.editTimeButton, { backgroundColor: colors.primary }]}
           onPress={() => {
-            setDraftMinutes(String(minutes));
+            const remainingMinutes =
+              endTime && endTime > Date.now()
+                ? Math.max(1, Math.round((endTime - Date.now()) / 60_000))
+                : minutes;
+            setDraftMinutes(String(remainingMinutes));
             setPromptVisible(true);
           }}
         >

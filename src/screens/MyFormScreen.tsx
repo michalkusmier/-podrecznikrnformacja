@@ -1,5 +1,5 @@
 // src/screens/MyFormScreen.tsx
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -13,6 +13,7 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { MainStackParamList } from '../types';
 import { useAppTheme } from '../context/ThemeContext';
 import { useSelection } from '../context/SelectionContext';
+import { getDraft, setDraft, clearDraft, type MyFormDraft } from '../services/draftService';
 import { addFormDataEntry } from '../services/formDataService';
 import { formatVerseNumber } from '../utils/formatVerse';
 
@@ -36,20 +37,68 @@ function fragmentKey(name: string | undefined, number: string | undefined): stri
 // wybranych fragmentów (wspólny koszyk - SelectionContext) trafią do
 // zapisu. Zapisujemy same odnośniki (sigla), nie treść wersetów - krócej
 // i czytelniej w historii, treść zawsze można doczytać w Biblii.
+// Klucz szkicu tego ekranu - jedna, bieżąca sesja "Dziennika Modlitwy" na
+// raz (ekran jest zawsze osiągany tą samą drogą, zaraz po zakończonej
+// modlitwie), więc stały klucz wystarcza.
+const MYFORM_DRAFT_KEY = 'myform';
+
 export default function MyFormScreen({ navigation }: Props) {
   const { colors } = useAppTheme();
   const { fragments, clearSelection } = useSelection();
 
+  const [loading, setLoading] = useState(true);
   const [notes, setNotes] = useState('');
   const [externalLight, setExternalLight] = useState('');
   const [internalLight, setInternalLight] = useState('');
   const [saving, setSaving] = useState(false);
-
-  const [includedKeys, setIncludedKeys] = useState<Set<string>>(
-    () => new Set(fragments.map((f) => fragmentKey(f.sigla?.name, f.sigla?.number)))
-  );
+  const [includedKeys, setIncludedKeys] = useState<Set<string>>(new Set());
 
   const today = useMemo(() => formatDatePL(new Date()), []);
+
+  // Dopóki to false, zmiany pól NIE są zapisywane do szkicu - inaczej
+  // pierwszy render (zanim skończymy wczytywać ewentualny szkic z
+  // AsyncStorage) mógłby nadpisać go pustymi, domyślnymi wartościami.
+  const initializedRef = useRef(false);
+
+  // Szkic (AsyncStorage, przetrwa odmontowanie tego ekranu przez DOWOLNĄ
+  // ścieżkę nawigacji) wczytywany raz, przy montowaniu - jeśli poprzednio
+  // wpisane tu notatki nie zostały zapisane (np. przypadkowe "Wstecz"),
+  // wracają zamiast znikać.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const draft = await getDraft<MyFormDraft>(MYFORM_DRAFT_KEY);
+      if (cancelled) return;
+      if (draft) {
+        setNotes(draft.notes);
+        setExternalLight(draft.externalLight);
+        setInternalLight(draft.internalLight);
+        setIncludedKeys(new Set(draft.includedFragmentKeys));
+      } else {
+        setIncludedKeys(new Set(fragments.map((f) => fragmentKey(f.sigla?.name, f.sigla?.number))));
+      }
+      setLoading(false);
+      initializedRef.current = true;
+    })();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Zapamiętuje bieżący stan formularza jako szkic przy KAŻDEJ zmianie -
+  // dzięki temu "Wstecz"/inny przycisk (odmontowujący ten ekran) nie
+  // kasuje wpisanych już notatek, tylko chowa je do czasu powrotu tutaj.
+  useEffect(() => {
+    if (!initializedRef.current) return;
+    setDraft<MyFormDraft>(MYFORM_DRAFT_KEY, {
+      notes,
+      externalLight,
+      internalLight,
+      includedFragmentKeys: Array.from(includedKeys),
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [notes, externalLight, internalLight, includedKeys]);
 
   function toggleIncluded(key: string) {
     setIncludedKeys((prev) => {
@@ -89,6 +138,8 @@ export default function MyFormScreen({ navigation }: Props) {
       setNotes('');
       setExternalLight('');
       setInternalLight('');
+      // Wpis realnie zapisany - szkic nie jest już potrzebny.
+      await clearDraft(MYFORM_DRAFT_KEY);
       // Wracamy na sam start (Bug #3 ze zgłoszenia) - nie do "Modlitwy".
       navigation.popToTop();
     } finally {
@@ -101,6 +152,14 @@ export default function MyFormScreen({ navigation }: Props) {
   // "w gore" do nawigatora zakladek.
   function goToHistory() {
     navigation.getParent()?.navigate('DziennikTab' as never);
+  }
+
+  if (loading) {
+    return (
+      <SafeAreaView style={[styles.flex, { backgroundColor: colors.background }]}>
+        <Text style={{ color: colors.subtext, padding: 16 }}>Wczytywanie…</Text>
+      </SafeAreaView>
+    );
   }
 
   return (
