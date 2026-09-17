@@ -7,8 +7,6 @@ import {
   ScrollView,
   StyleSheet,
   LayoutAnimation,
-  Platform,
-  UIManager,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
@@ -86,10 +84,6 @@ const SMALL_TILES = ALL_TILES.slice(2);
 // je specjalnie przy renderowaniu.
 const BIBLIA_SECTION_KEY = 'biblia';
 const CZYTANIA_SECTION_KEY = 'czytania';
-
-if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
-  UIManager.setLayoutAnimationEnabledExperimental(true);
-}
 
 // Ekran główny - 5 równych kafelków (Adoracja [z Proklamacją w środku],
 // Czytania dnia, Biblia Tysiąclecia, Imiona i tytuły Boga, Formacja). Dopóki

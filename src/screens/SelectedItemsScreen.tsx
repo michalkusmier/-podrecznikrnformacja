@@ -9,8 +9,6 @@ import {
   ScrollView,
   StyleSheet,
   LayoutAnimation,
-  Platform,
-  UIManager,
   Animated,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -52,10 +50,6 @@ const CANDLE_EXTINGUISHED_SECONDS = 50.5;
 // Ile czasu po "Dalej" czekamy z przyciemnieniem, zanim faktycznie
 // przejdziemy do Dziennika Modlitwy.
 const CANDLE_BLOWOUT_PREVIEW_MS = 1500;
-
-if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
-  UIManager.setLayoutAnimationEnabledExperimental(true);
-}
 
 // Odpowiednik selected-items-page.component.ts.
 // ion-alert z prompt-em na minuty zastąpiony własnym modalem (działa tak samo na iOS i Androidzie).
