@@ -4,6 +4,7 @@ import { StatusBar } from 'expo-status-bar';
 import { setAudioModeAsync } from 'expo-audio';
 import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { View, Pressable } from 'react-native';
@@ -12,7 +13,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { ThemeProvider, useAppTheme } from './src/context/ThemeContext';
 import { SelectionProvider, useSelection } from './src/context/SelectionContext';
 import { PrayerTimerProvider } from './src/context/PrayerTimerContext';
+import { AuthProvider, useAuth } from './src/context/AuthContext';
 import GlobalPrayerBadge from './src/components/GlobalPrayerBadge';
+import FormacjaAccessGate from './src/components/FormacjaAccessGate';
 import { navigationRef } from './src/navigation/navigationRef';
 import type { MainStackParamList, TabParamList } from './src/types';
 
@@ -30,6 +33,40 @@ import JournalEntryScreen from './src/screens/JournalEntryScreen';
 
 const Stack = createNativeStackNavigator<MainStackParamList>();
 const Tab = createBottomTabNavigator<TabParamList>();
+
+// Formacja jest zamkniętą częścią appki - dostępna dopiero po zalogowaniu
+// (konto zakładane kodem dostępu, patrz src/components/FormacjaAccessGate).
+// Tygodnie/dni Formacji (FormacjaWeek/FormacjaDay) nie mają własnej bramki -
+// w appce da się do nich dojść WYŁĄCZNIE z tego ekranu, więc ta jedna
+// wystarcza przy obecnej nawigacji.
+function FormacjaListGated(props: NativeStackScreenProps<MainStackParamList, 'Formacja'>) {
+  return (
+    <FormacjaAccessGate>
+      <FormacjaListScreen {...props} />
+    </FormacjaAccessGate>
+  );
+}
+
+// Widoczny tylko, gdy jest aktywna sesja (na ekranie logowania nie ma czego
+// wylogowywać) - pozwala przetestować ekran logowania ponownie albo oddać
+// telefon/konto komuś innemu bez trzymania sesji na zawsze.
+function FormacjaHeaderRight() {
+  const { colors } = useAppTheme();
+  const { session, signOut } = useAuth();
+
+  if (!session) return null;
+
+  return (
+    <Pressable
+      onPress={() => signOut()}
+      hitSlop={12}
+      accessibilityRole="button"
+      accessibilityLabel="Wyloguj się"
+    >
+      <Ionicons name="log-out-outline" size={24} color={colors.text} />
+    </Pressable>
+  );
+}
 
 // Stos ekranów głównej części appki (wszystko poza Dziennikiem).
 function MainStackNavigator() {
@@ -78,7 +115,11 @@ function MainStackNavigator() {
         component={DivineTitlesScreen}
         options={{ title: 'Imiona i tytuły Boga' }}
       />
-      <Stack.Screen name="Formacja" component={FormacjaListScreen} options={{ title: 'Formacja' }} />
+      <Stack.Screen
+        name="Formacja"
+        component={FormacjaListGated}
+        options={{ title: 'Formacja', headerRight: () => <FormacjaHeaderRight /> }}
+      />
       <Stack.Screen name="FormacjaWeek" component={FormacjaWeekScreen} options={{ title: 'Formacja' }} />
       <Stack.Screen name="FormacjaDay" component={FormacjaDayScreen} options={{ title: 'Formacja' }} />
       <Stack.Screen
@@ -207,11 +248,13 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <ThemeProvider>
-        <SelectionProvider>
-          <PrayerTimerProvider>
-            <Navigation />
-          </PrayerTimerProvider>
-        </SelectionProvider>
+        <AuthProvider>
+          <SelectionProvider>
+            <PrayerTimerProvider>
+              <Navigation />
+            </PrayerTimerProvider>
+          </SelectionProvider>
+        </AuthProvider>
       </ThemeProvider>
     </SafeAreaProvider>
   );
