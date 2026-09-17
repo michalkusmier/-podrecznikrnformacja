@@ -90,6 +90,40 @@ export default function CzytaniaBrowser({ goToQueue }: Props) {
     return isSelected({ sigla: { name: item.label, ratio: item.reference }, quote: '' });
   }
 
+  // Wszystkie zaznaczalne fragmenty widoczne na ekranie (pojedyncze wersety
+  // tam, gdzie czytanie udało się rozbić, albo cały blok w przeciwnym razie) -
+  // potrzebne do zaznaczania/odznaczania jednym kliknięciem całości czytań.
+  function getAllReferences(): Reference[] {
+    if (!data) return [];
+    const refs: Reference[] = [];
+    data.items.forEach((item) => {
+      const resolved = resolveCitationVerses(item.reference);
+      if (resolved) {
+        resolved.verses.forEach((rv) => {
+          refs.push({
+            sigla: { name: resolved.bookName, number: `${rv.chapter},${rv.entry.number}` },
+            quote: rv.entry.text,
+          });
+        });
+      } else {
+        refs.push({ sigla: { name: item.label, ratio: item.reference }, quote: item.text });
+      }
+    });
+    return refs;
+  }
+
+  const allReferences = getAllReferences();
+  const allSelected = allReferences.length > 0 && allReferences.every((ref) => isSelected(ref));
+
+  function toggleAllReadings() {
+    allReferences.forEach((ref) => {
+      const selected = isSelected(ref);
+      if (allSelected ? selected : !selected) {
+        toggleFragment(ref);
+      }
+    });
+  }
+
   return (
     <View style={styles.flex}>
       <ScrollView contentContainerStyle={styles.content}>
@@ -110,6 +144,23 @@ export default function CzytaniaBrowser({ goToQueue }: Props) {
               <Text style={{ color: colors.primary, fontWeight: '600' }}>Spróbuj ponownie</Text>
             </Pressable>
           </View>
+        )}
+
+        {!loading && !error && data && data.items.length > 0 && (
+          <Pressable
+            onPress={toggleAllReadings}
+            style={[
+              styles.selectAllButton,
+              {
+                borderColor: colors.primary,
+                backgroundColor: allSelected ? colors.primary + '22' : 'transparent',
+              },
+            ]}
+          >
+            <Text style={{ color: colors.primary, fontWeight: '600' }}>
+              {allSelected ? 'Odznacz wszystkie czytania' : 'Zaznacz wszystkie czytania'}
+            </Text>
+          </Pressable>
         )}
 
         {!loading && !error && data && (
@@ -196,6 +247,14 @@ const styles = StyleSheet.create({
   verseNumber: { fontSize: 12, fontWeight: '700', marginBottom: 4 },
   verseText: { fontSize: 14, lineHeight: 20 },
   sourceLabel: { fontSize: 12, marginTop: 8 },
+  selectAllButton: {
+    marginTop: 12,
+    alignSelf: 'flex-start',
+    borderWidth: 1.5,
+    borderRadius: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+  },
   retryButton: {
     marginTop: 12,
     alignSelf: 'flex-start',

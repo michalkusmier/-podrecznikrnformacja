@@ -11,6 +11,7 @@ import {
   LayoutAnimation,
   Platform,
   UIManager,
+  Animated,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useEventListener } from 'expo';
@@ -33,12 +34,24 @@ const ambientSource = require('../../assets/ambient_candle.mp3');
 // ~10 sekundach ktoś na filmie faktycznie zdmuchuje świece jedna po drugiej.
 // Zwykłe `loop: true` powtarzałoby więc całą sekwencję "płonie -> gaśnie ->
 // nagle znów płonie" co ~51 sekund. Zamiast tego zapętlamy programowo tylko
-// spokojny, płonący fragment (0 - CANDLE_LOOP_OUT_SECONDS) przez cały czas
-// modlitwy, a końcówkę ze zdmuchiwaniem puszczamy naturalnie dopiero wtedy,
-// gdy do końca ustawionego czasu zostaje mniej niż ona trwa - świece gasną
-// więc mniej więcej w momencie, w którym kończy się odliczanie.
+// spokojny, płonący fragment (0 - CANDLE_LOOP_OUT_SECONDS) przez CAŁY czas
+// modlitwy, niezależnie od tego, ile zostało na odliczaniu - świeca NIE gaśnie
+// sama z końcem czasu. Końcówkę ze zdmuchiwaniem pokazujemy tylko wtedy, gdy
+// użytkownik faktycznie wychodzi z tego ekranu (patrz useFocusEffect niżej).
 const CANDLE_LOOP_OUT_SECONDS = 41;
-const CANDLE_TAIL_DURATION_MS = 10_000;
+// Klatka blisko samego końca nagrania - używana, gdy wychodzimy z tego
+// ekranu "do przodu" (np. "Dalej" do Dziennika Modlitwy), żeby ekran
+// zostawał na czymś innym niż spokojny, płonący fragment pętli.
+const CANDLE_EXTINGUISHED_SECONDS = 50.5;
+// UWAGA: w samym nagraniu główna, ostra świeca na pierwszym planie
+// NIGDY faktycznie nie gaśnie (sprawdzone klatka po klatce) - gasną tylko
+// dwie rozmyte świece w tle, ok. 47-49s. Samo poczekanie na koniec filmu
+// więc NIE pokazuje widocznego gaśnięcia. Dlatego "gaśnięcie" po "Dalej"
+// symulujemy osobno: przyciemnieniem (fade do czerni) nałożonym na wideo -
+// patrz fadeAnim niżej.
+// Ile czasu po "Dalej" czekamy z przyciemnieniem, zanim faktycznie
+// przejdziemy do Dziennika Modlitwy.
+const CANDLE_BLOWOUT_PREVIEW_MS = 1500;
 
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
@@ -76,10 +89,6 @@ export default function SelectedItemsScreen({ route, navigation }: Props) {
   // zostanie potwierdzona w modalu (pierwsze wejście na ekran), licznik jest
   // i tak schowany pod modalem, więc to tylko wartość zastępcza.
   const displayEndTime = endTime ?? Date.now() + minutes * 60_000;
-  // Zawsze aktualna wartość dostępna wewnątrz listenera zdarzeń wideo
-  // (patrz niżej) bez potrzeby ponownej subskrypcji przy każdej zmianie.
-  const displayEndTimeRef = useRef(displayEndTime);
-  displayEndTimeRef.current = displayEndTime;
 
   const player = useVideoPlayer(candleSource, (p) => {
     p.loop = false;
@@ -107,22 +116,11 @@ export default function SelectedItemsScreen({ route, navigation }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [endTime]);
 
+  // Pętla spokojnego fragmentu świecy - działa cały czas, niezależnie od
+  // odliczania. candleTailStartedRef blokuje ją tylko wtedy, gdy świeca
+  // została celowo zgaszona przy wyjściu z ekranu (patrz useFocusEffect niżej).
   useEventListener(player, 'timeUpdate', ({ currentTime }) => {
     if (candleTailStartedRef.current) return;
-
-    const remainingMs = displayEndTimeRef.current - Date.now();
-
-    if (remainingMs <= CANDLE_TAIL_DURATION_MS) {
-      candleTailStartedRef.current = true;
-      if (currentTime < CANDLE_LOOP_OUT_SECONDS) {
-        try {
-          player.currentTime = CANDLE_LOOP_OUT_SECONDS;
-        } catch (e) {
-          // odtwarzacz mógł już zostać zwolniony - ignorujemy.
-        }
-      }
-      return;
-    }
 
     if (currentTime >= CANDLE_LOOP_OUT_SECONDS) {
       try {
@@ -188,6 +186,76 @@ export default function SelectedItemsScreen({ route, navigation }: Props) {
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [musicOn])
   );
+
+  // Przyciemnienie (fade do czerni) nakładane na wideo świecy - jedyny
+  // NIEZAWODNY sposób pokazania "gaśnięcia" po "Dalej", bo samo nagranie
+  // nigdy nie pokazuje w pełni zgaszonej głównej świecy (patrz komentarz
+  // przy CANDLE_EXTINGUISHED_SECONDS wyżej).
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const leaveAnimationRef = useRef<Animated.CompositeAnimation | null>(null);
+  // Czy właśnie trwa "wyjście" z ekranu (po "Dalej") - blokuje ponowne
+  // wciśnięcie przycisku, dopóki nie będzie widać, jak świeca gaśnie.
+  const [leaving, setLeaving] = useState(false);
+
+  // Świeca gaśnie/pali się w zależności od tego, czy ten ekran jest aktywny -
+  // React Navigation nie odmontowuje go po "Dalej" (tylko chowa pod
+  // Dziennikiem Modlitwy), więc bez tego świeca paliłaby się dalej w tle.
+  // Przy powrocie fokusu (pierwsze wejście ALBO "Wstecz" z Dziennika)
+  // świeca zawsze zaczyna płonąć od nowa, od spokojnego początku nagrania,
+  // a przyciemnienie z poprzedniego wyjścia znika.
+  useFocusEffect(
+    useCallback(() => {
+      try {
+        candleTailStartedRef.current = false;
+        player.currentTime = 0;
+        player.play();
+      } catch (e) {
+        // odtwarzacz mógł jeszcze nie być gotowy - nic nie robimy.
+      }
+      fadeAnim.setValue(0);
+      setLeaving(false);
+      return () => {
+        // Utrata fokusu (np. "Dalej" do Dziennika Modlitwy) - blokujemy
+        // listener odliczania, żeby nie próbował dalej pętlować wideo.
+        try {
+          candleTailStartedRef.current = true;
+          player.currentTime = CANDLE_EXTINGUISHED_SECONDS;
+          player.pause();
+        } catch (e) {
+          // odtwarzacz mógł już zostać zwolniony - ignorujemy.
+        }
+      };
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
+  );
+
+  // "Dalej" nie przechodzi do Dziennika Modlitwy od razu - najpierw widać
+  // przez chwilę przyciemnienie wideo (symulujące zgaszenie świec) i
+  // dopiero PO jego zakończeniu nawigujemy dalej.
+  function handleDalej() {
+    if (leaving) return;
+    setLeaving(true);
+    try {
+      candleTailStartedRef.current = true;
+      if (player.currentTime < CANDLE_LOOP_OUT_SECONDS) {
+        player.currentTime = CANDLE_LOOP_OUT_SECONDS;
+      }
+      player.play();
+    } catch (e) {
+      // odtwarzacz mógł już zostać zwolniony - ignorujemy.
+    }
+    const anim = Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: CANDLE_BLOWOUT_PREVIEW_MS,
+      useNativeDriver: true,
+    });
+    leaveAnimationRef.current = anim;
+    anim.start(({ finished }) => {
+      if (finished) {
+        navigation.navigate('MyForm');
+      }
+    });
+  }
 
   function toggleMusic() {
     try {
@@ -262,6 +330,10 @@ export default function SelectedItemsScreen({ route, navigation }: Props) {
         >
           <Text style={styles.musicButtonText}>{musicOn ? '🔊' : '🔇'}</Text>
         </Pressable>
+        <Animated.View
+          pointerEvents="none"
+          style={[styles.blowoutOverlay, { opacity: fadeAnim }]}
+        />
       </View>
 
       {selectedItems.length > 0 && (
@@ -300,10 +372,21 @@ export default function SelectedItemsScreen({ route, navigation }: Props) {
       </ScrollView>
 
       <View style={[styles.footerNav, { borderTopColor: colors.border }]}>
-        <Pressable style={styles.navButton} onPress={() => navigation.goBack()}>
+        <Pressable
+          style={styles.navButton}
+          onPress={() => {
+            if (leaveAnimationRef.current) {
+              leaveAnimationRef.current.stop();
+              leaveAnimationRef.current = null;
+              fadeAnim.setValue(0);
+              setLeaving(false);
+            }
+            navigation.goBack();
+          }}
+        >
           <Text style={{ color: colors.text }}>Wstecz</Text>
         </Pressable>
-        <Pressable style={styles.navButton} onPress={() => navigation.navigate('MyForm')}>
+        <Pressable style={[styles.navButton, { opacity: leaving ? 0.5 : 1 }]} onPress={handleDalej} disabled={leaving}>
           <Text style={{ color: colors.primary, fontWeight: '700' }}>Dalej</Text>
         </Pressable>
       </View>
@@ -362,6 +445,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   musicButtonText: { fontSize: 16 },
+  blowoutOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: '#000',
+  },
   progressLabel: { fontSize: 12, textAlign: 'center', paddingTop: 10, paddingHorizontal: 16 },
   content: { padding: 16 },
   item: { paddingVertical: 12, borderBottomWidth: StyleSheet.hairlineWidth },

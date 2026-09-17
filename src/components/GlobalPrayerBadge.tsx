@@ -36,6 +36,16 @@ export default function GlobalPrayerBadge() {
 
   useEffect(() => {
     if (endTime === null) return undefined;
+    // Odświeżamy od razu (nie dopiero po pierwszym tyknięciu za 1s) - inaczej
+    // pierwszy render po starcie nowego licznika liczy "remaining" względem
+    // `now` sprzed dłuższej chwili (z momentu zamontowania appki, zanim
+    // jakikolwiek licznik w ogóle ruszył) i pokazuje zawyżony czas (np. 14
+    // minut zamiast 10, jeśli appka była otwarta 4 minuty przed startem
+    // odliczania) - a `routeName` też jeszcze przez tę samą chwilę wskazuje
+    // stary ekran, więc znaczek na sekundę myli się i pokazuje się na
+    // ekranie ze świecą, mimo że tam nie powinien.
+    setNow(Date.now());
+    setRouteName(navigationRef.isReady() ? navigationRef.getCurrentRoute()?.name : undefined);
     const id = setInterval(() => {
       setNow(Date.now());
       setRouteName(navigationRef.isReady() ? navigationRef.getCurrentRoute()?.name : undefined);
