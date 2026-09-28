@@ -36,12 +36,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Ping Supabase REST endpoint
+        # Akceptujemy też nazwy sekretów takie jak w .env (EXPO_PUBLIC_...).
+        env:
+          SB_URL: ${{ secrets.SUPABASE_URL || secrets.EXPO_PUBLIC_SUPABASE_URL }}
+          SB_KEY: ${{ secrets.SUPABASE_ANON_KEY || secrets.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
         run: |
-          if [ -z "${{ secrets.SUPABASE_URL }}" ] || [ -z "${{ secrets.SUPABASE_ANON_KEY }}" ]; then
-            echo "Brak sekretów SUPABASE_URL / SUPABASE_ANON_KEY - dodaj je w Settings > Secrets and variables > Actions."
+          if [ -z "$SB_URL" ] || [ -z "$SB_KEY" ]; then
+            echo "Brak sekretów SUPABASE_URL / SUPABASE_ANON_KEY (albo EXPO_PUBLIC_SUPABASE_URL / EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY) - dodaj je w Settings > Secrets and variables > Actions."
             exit 1
           fi
-          curl -sS --fail-with-body -X POST "${{ secrets.SUPABASE_URL }}/rest/v1/rpc/keepalive" \
-            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+          curl -sS --fail-with-body -X POST "${SB_URL%/}/rest/v1/rpc/keepalive" \
+            -H "apikey: $SB_KEY" \
             -H "Content-Type: application/json" \
             -d '{}'
