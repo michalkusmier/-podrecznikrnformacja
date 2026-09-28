@@ -6,14 +6,18 @@
 # workflow odpytuje projekt kilka razy w tygodniu, żeby ten licznik
 # bezczynności nigdy nie doszedł do 7 dni.
 #
-# WYMAGANE DO DZIAŁANIA (na razie tego brakuje - projekt Supabase jeszcze
-# nie istnieje): w ustawieniach repo (Settings -> Secrets and variables ->
-# Actions) dodaj dwa sekrety:
+# WYMAGANE DO DZIAŁANIA:
+# 1. W Supabase (SQL Editor) uruchom supabase/migrations/0002_keepalive.sql
+#    - tworzy funkcję public.keepalive(), którą ten workflow wywołuje.
+# 2. W ustawieniach repo (Settings -> Secrets and variables -> Actions)
+#    dodaj dwa sekrety:
 #   SUPABASE_URL       - np. https://xxxxxxxx.supabase.co
-#   SUPABASE_ANON_KEY   - klucz "anon public" z ustawień API projektu
-# Do tego momentu ten workflow będzie kończył się błędem przy każdym
-# uruchomieniu (czerwony X w zakładce Actions) - to nieszkodliwe, po
-# prostu nic jeszcze nie ma do "obudzenia".
+#   SUPABASE_ANON_KEY  - klucz publishable (sb_publishable_...), ten sam co
+#                        EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY w .env
+#
+# Nie pingujemy /rest/v1/ - przy nowych kluczach ten endpoint wymaga klucza
+# secret i zwraca 401. Klucza publishable nie wysyłamy też jako
+# "Authorization: Bearer" - to nie jest JWT i zostałby odrzucony.
 #
 # UWAGA: GitHub sam wyłącza cykliczne (`schedule`) workflowy w repo, w
 # którym nie było ŻADNEJ aktywności (commitów) od 60 dni - to osobny,
@@ -37,7 +41,7 @@ jobs:
             echo "Brak sekretów SUPABASE_URL / SUPABASE_ANON_KEY - dodaj je w Settings > Secrets and variables > Actions."
             exit 1
           fi
-          curl -sf "${{ secrets.SUPABASE_URL }}/rest/v1/" \
+          curl -sS --fail-with-body -X POST "${{ secrets.SUPABASE_URL }}/rest/v1/rpc/keepalive" \
             -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
-            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
-            --output /dev/null
+            -H "Content-Type: application/json" \
+            -d '{}'
