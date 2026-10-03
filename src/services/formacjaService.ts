@@ -53,25 +53,3 @@ export async function getAllCompletedCounts(): Promise<Record<string, number>> {
   }
   return counts;
 }
-
-// Które lata/bloki są rozwinięte na liście Formacji - żeby po powrocie do
-// appki lista wyglądała tak, jak ją zostawiono.
-const EXPANDED_KEY = 'formacjaListExpanded';
-
-export async function getExpandedNodes(): Promise<string[]> {
-  try {
-    const raw = await AsyncStorage.getItem(EXPANDED_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch (e) {
-    console.error('Nie udało się odczytać stanu listy formacji:', e);
-    return [];
-  }
-}
-
-export async function setExpandedNodes(ids: string[]): Promise<void> {
-  try {
-    await AsyncStorage.setItem(EXPANDED_KEY, JSON.stringify(ids));
-  } catch (e) {
-    console.error('Nie udało się zapisać stanu listy formacji:', e);
-  }
-}

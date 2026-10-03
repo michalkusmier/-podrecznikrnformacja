@@ -1,5 +1,5 @@
 // src/screens/FormacjaListScreen.tsx
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { View, Text, ScrollView, Pressable, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
@@ -8,7 +8,7 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { MainStackParamList } from '../types';
 import { useAppTheme } from '../context/ThemeContext';
 import { FORMACJA_SECTIONS, type FormacjaSection, type FormacjaWeek } from '../data/formacja';
-import { getAllCompletedCounts, getExpandedNodes, setExpandedNodes } from '../services/formacjaService';
+import { getAllCompletedCounts } from '../services/formacjaService';
 
 type Props = NativeStackScreenProps<MainStackParamList, 'Formacja'>;
 
@@ -41,19 +41,27 @@ function weeksLabel(n: number): string {
   return `${n} tygodni`;
 }
 
-// Lista Formacji jako zwijane drzewo: Rok -> część -> tygodnie. Stan
-// rozwinięcia zapamiętywany w AsyncStorage (formacjaService).
+// Lista Formacji jako zwijane drzewo: Rok -> część -> tygodnie. Każde wejście
+// na listę pokazuje same lata (zwinięte); wyjątkiem jest powrót z tygodnia
+// otwartego z tej listy - wtedy drzewo zostaje tak, jak było.
 export default function FormacjaListScreen({ navigation }: Props) {
   const { colors } = useAppTheme();
   const [completedCounts, setCompletedCounts] = useState<Record<string, number>>({});
-  const [expanded, setExpanded] = useState<Set<string>>(new Set());
+  // Najwyżej jeden otwarty rok i jedna otwarta część naraz.
+  const [openYear, setOpenYear] = useState<string | null>(null);
+  const [openPart, setOpenPart] = useState<string | null>(null);
 
-  useEffect(() => {
-    getExpandedNodes().then((ids) => setExpanded(new Set(ids)));
-  }, []);
+  // true, gdy z listy otwarto tydzień - powrót z niego nie zwija drzewa.
+  const openedWeekRef = useRef(false);
 
   useFocusEffect(
     useCallback(() => {
+      if (!openedWeekRef.current) {
+        setOpenYear(null);
+        setOpenPart(null);
+      }
+      openedWeekRef.current = false;
+
       let active = true;
       getAllCompletedCounts().then((counts) => {
         if (active) setCompletedCounts(counts);
@@ -64,31 +72,16 @@ export default function FormacjaListScreen({ navigation }: Props) {
     }, [])
   );
 
-  function toggle(id: string) {
-    setExpanded((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      setExpandedNodes(Array.from(next));
-      return next;
-    });
+  // Kliknięcie roku zwija wszystko inne (pozostałe lata i ich części) -
+  // otwarty rok pokazuje same części, zwinięte.
+  function toggleYear(year: YearGroup) {
+    setOpenYear((prev) => (prev === year.id ? null : year.id));
+    setOpenPart(null);
   }
 
-  // Rozwinięty jest najwyżej jeden rok naraz: otwarcie roku zwija pozostałe
-  // lata razem z ich częściami.
-  function toggleYear(year: YearGroup) {
-    setExpanded((prev) => {
-      const wasOpen = prev.has(year.id);
-      const next = new Set<string>();
-      if (!wasOpen) {
-        next.add(year.id);
-        year.sections.forEach((s) => {
-          if (prev.has(s.id)) next.add(s.id);
-        });
-      }
-      setExpandedNodes(Array.from(next));
-      return next;
-    });
+  // Otwarcie części zwija poprzednio otwartą.
+  function togglePart(section: FormacjaSection) {
+    setOpenPart((prev) => (prev === section.id ? null : section.id));
   }
 
   function progress(weeks: FormacjaWeek[]) {
@@ -109,7 +102,10 @@ export default function FormacjaListScreen({ navigation }: Props) {
       <Pressable
         key={week.id}
         style={[styles.weekCard, { backgroundColor: colors.card, borderColor: colors.border }]}
-        onPress={() => navigation.navigate('FormacjaWeek', { weekId: week.id })}
+        onPress={() => {
+          openedWeekRef.current = true;
+          navigation.navigate('FormacjaWeek', { weekId: week.id });
+        }}
       >
         <Text style={[styles.weekNumber, { color: colors.formacja }]}>Tydzień {week.number}</Text>
         <Text style={[styles.weekTitle, { color: colors.text }]}>{week.title}</Text>
@@ -121,12 +117,12 @@ export default function FormacjaListScreen({ navigation }: Props) {
   }
 
   function renderFolder(section: FormacjaSection) {
-    const isOpen = expanded.has(section.id);
+    const isOpen = openPart === section.id;
     const { done, total } = progress(section.weeks);
     return (
       <View key={section.id}>
         <Pressable
-          onPress={() => toggle(section.id)}
+          onPress={() => togglePart(section)}
           style={[styles.folderRow, { borderColor: colors.border, backgroundColor: colors.card }]}
         >
           <Ionicons name={isOpen ? 'folder-open-outline' : 'folder-outline'} size={22} color={colors.formacja} />
@@ -151,7 +147,7 @@ export default function FormacjaListScreen({ navigation }: Props) {
         </Text>
 
         {YEARS.map((year) => {
-          const isOpen = expanded.has(year.id);
+          const isOpen = openYear === year.id;
           const { done, total } = progress(year.sections.flatMap((s) => s.weeks));
           const parts = year.sections.length;
           const subtitle = `${parts === 1 ? '1 część' : `${parts} części`} · ${weeksLabel(countWeeks(year.sections))}`;
