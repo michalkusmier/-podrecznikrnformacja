@@ -74,6 +74,23 @@ export default function FormacjaListScreen({ navigation }: Props) {
     });
   }
 
+  // Rozwinięty jest najwyżej jeden rok naraz: otwarcie roku zwija pozostałe
+  // lata razem z ich częściami.
+  function toggleYear(year: YearGroup) {
+    setExpanded((prev) => {
+      const wasOpen = prev.has(year.id);
+      const next = new Set<string>();
+      if (!wasOpen) {
+        next.add(year.id);
+        year.sections.forEach((s) => {
+          if (prev.has(s.id)) next.add(s.id);
+        });
+      }
+      setExpandedNodes(Array.from(next));
+      return next;
+    });
+  }
+
   function progress(weeks: FormacjaWeek[]) {
     let done = 0;
     let total = 0;
@@ -142,7 +159,7 @@ export default function FormacjaListScreen({ navigation }: Props) {
           return (
             <View key={year.id} style={styles.yearBlock}>
               <Pressable
-                onPress={() => toggle(year.id)}
+                onPress={() => toggleYear(year)}
                 style={[
                   styles.yearRow,
                   { backgroundColor: colors.card, borderColor: isOpen ? colors.formacja : colors.border },
