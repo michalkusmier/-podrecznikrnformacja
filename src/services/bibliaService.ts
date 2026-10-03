@@ -233,6 +233,17 @@ function findBookBySkrot(raw: string): BibleBook | null {
 export function resolveCitationVerses(citation: string): ResolvedCitation | null {
   const raw = citation.trim();
 
+  // Cały rozdział: "<księga> <rozdział>", np. "Mk 13" albo "Ps 150" (teksty
+  // do modlitwy w Formacji).
+  const wholeChapterMatch = /^([^,]*?)\s*(\d+)$/.exec(raw);
+  if (wholeChapterMatch) {
+    const book = findBookBySkrot(wholeChapterMatch[1]);
+    if (!book) return null;
+    const chapter = parseInt(wholeChapterMatch[2], 10);
+    const verses = getChapterVerses(book.skrot, chapter).map((entry) => ({ chapter, entry }));
+    return verses.length ? { skrot: book.skrot, bookName: book.nazwa, verses } : null;
+  }
+
   // Główny wzorzec: "<księga> <rozdział>[ (numeracja LXX)], <specyfikacja>"
   const mainMatch = /^(.*?)(\d+)(?:\s*\([^)]*\))?\s*,\s*(.+)$/.exec(raw);
   if (!mainMatch) return null;

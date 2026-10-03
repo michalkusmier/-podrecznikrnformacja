@@ -10,7 +10,7 @@ import { useAppTheme } from '../context/ThemeContext';
 import { getFormDataList, deleteFormDataEntry } from '../services/formDataService';
 import { formatVerseNumber } from '../utils/formatVerse';
 import { shareJournalEntry } from '../utils/shareEntry';
-import { toRoman } from '../data/formacja';
+import { formacjaWeekLabel, toRoman } from '../data/formacja';
 
 type Props = BottomTabScreenProps<TabParamList, 'DziennikTab'>;
 
@@ -136,7 +136,7 @@ export default function FormHistoryScreen({ navigation }: Props) {
                 onPress={() => openFormacjaDay(item.formacjaSource!)}
               >
                 <Text style={{ color: colors.formacja, fontSize: 12, fontWeight: '700' }}>
-                  Formacja · Tydzień {item.formacjaSource.weekNumber} · Dzień{' '}
+                  Formacja · {formacjaWeekLabel(item.formacjaSource.weekId, item.formacjaSource.weekNumber)} · Dzień{' '}
                   {toRoman(item.formacjaSource.dayNumber)} ›
                 </Text>
               </Pressable>

@@ -8,13 +8,17 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { MainStackParamList, SavedFormEntry } from '../types';
 import { useAppTheme } from '../context/ThemeContext';
 import { useSelection } from '../context/SelectionContext';
-import { FORMACJA_WEEKS, toRoman } from '../data/formacja';
+import { FORMACJA_WEEKS, formacjaWeekLabel, toRoman } from '../data/formacja';
 import { getCompletedTaskIds, setTaskCompleted } from '../services/formacjaService';
 import { getFormDataListForFormacjaDay } from '../services/formDataService';
-import { resolveCitationVerses } from '../services/bibliaService';
+import { resolveCitationVerses, type ResolvedCitation } from '../services/bibliaService';
 import { formatVerseNumber } from '../utils/formatVerse';
 
 type Props = NativeStackScreenProps<MainStackParamList, 'FormacjaDay'>;
+
+// Dłuższe fragmenty (np. cały rozdział "Mk 14") są domyślnie zwinięte, żeby
+// nie zasłaniały reszty dnia - rozwija się je przyciskiem.
+const COLLAPSE_ABOVE_VERSES = 12;
 
 // Treść jednego dnia formacji: tekst do przeczytania (akapity, opcjonalna
 // lista punktowana, opcjonalna wyróżniona myśl "ZAPAMIĘTAJ"), zadania z
@@ -30,6 +34,7 @@ export default function FormacjaDayScreen({ route, navigation }: Props) {
   const day = week?.days.find((d) => d.id === dayId);
   const [completed, setCompleted] = useState<Set<string>>(new Set());
   const [reflections, setReflections] = useState<SavedFormEntry[]>([]);
+  const [expandedTasks, setExpandedTasks] = useState<Set<string>>(new Set());
   const { fragments, toggleFragment, isSelected, count } = useSelection();
 
   useEffect(() => {
@@ -62,6 +67,32 @@ export default function FormacjaDayScreen({ route, navigation }: Props) {
     }
     setCompleted(next);
     await setTaskCompleted(dayId, taskId, !isDone);
+  }
+
+  function toggleExpanded(taskId: string) {
+    setExpandedTasks((prev) => {
+      const next = new Set(prev);
+      if (next.has(taskId)) next.delete(taskId);
+      else next.add(taskId);
+      return next;
+    });
+  }
+
+  function verseRef(resolved: ResolvedCitation, rv: ResolvedCitation['verses'][number]) {
+    return {
+      sigla: { name: resolved.bookName, number: `${rv.chapter},${rv.entry.number}` },
+      quote: rv.entry.text,
+    };
+  }
+
+  // Zaznacza/odznacza cały fragment zadania naraz (jak "Zaznacz wszystkie
+  // czytania" w Czytaniach dnia).
+  function toggleWholeCitation(resolved: ResolvedCitation, allSelected: boolean) {
+    resolved.verses.forEach((rv) => {
+      const ref = verseRef(resolved, rv);
+      const selected = isSelected(ref);
+      if (allSelected ? selected : !selected) toggleFragment(ref);
+    });
   }
 
   function goToQueue() {
@@ -97,7 +128,7 @@ export default function FormacjaDayScreen({ route, navigation }: Props) {
     <SafeAreaView style={[styles.flex, { backgroundColor: colors.background }]}>
       <ScrollView contentContainerStyle={styles.content}>
         <Text style={[styles.eyebrow, { color: colors.subtext }]}>
-          Tydzień {week.number} · Dzień {toRoman(day.number)}
+          {formacjaWeekLabel(week.id, week.number)} · Dzień {toRoman(day.number)}
         </Text>
         <Text style={[styles.title, { color: colors.formacja }]}>{day.title}</Text>
 
@@ -131,6 +162,10 @@ export default function FormacjaDayScreen({ route, navigation }: Props) {
               const done = completed.has(task.id);
               const resolved =
                 task.kind === 'pray' && task.reference ? resolveCitationVerses(task.reference) : null;
+              const collapsible = !!resolved && resolved.verses.length > COLLAPSE_ABOVE_VERSES;
+              const expanded = !collapsible || expandedTasks.has(task.id);
+              const allVersesSelected =
+                !!resolved && resolved.verses.every((rv) => isSelected(verseRef(resolved, rv)));
 
               return (
                 <View key={task.id} style={styles.taskBlock}>
@@ -154,12 +189,38 @@ export default function FormacjaDayScreen({ route, navigation }: Props) {
                   </Pressable>
 
                   {resolved && (
+                    <View style={styles.verseActions}>
+                      <Pressable
+                        onPress={() => toggleWholeCitation(resolved, allVersesSelected)}
+                        style={[
+                          styles.verseActionButton,
+                          {
+                            borderColor: colors.formacja,
+                            backgroundColor: allVersesSelected ? colors.formacja + '22' : 'transparent',
+                          },
+                        ]}
+                      >
+                        <Text style={{ color: colors.formacja, fontWeight: '600', fontSize: 13 }}>
+                          {allVersesSelected ? 'Odznacz cały fragment' : 'Zaznacz cały fragment'}
+                        </Text>
+                      </Pressable>
+                      {collapsible && (
+                        <Pressable
+                          onPress={() => toggleExpanded(task.id)}
+                          style={[styles.verseActionButton, { borderColor: colors.border }]}
+                        >
+                          <Text style={{ color: colors.subtext, fontWeight: '600', fontSize: 13 }}>
+                            {expanded ? 'Zwiń wersety' : `Pokaż wersety (${resolved.verses.length})`}
+                          </Text>
+                        </Pressable>
+                      )}
+                    </View>
+                  )}
+
+                  {resolved && expanded && (
                     <View style={styles.verseList}>
                       {resolved.verses.map((rv) => {
-                        const ref = {
-                          sigla: { name: resolved.bookName, number: `${rv.chapter},${rv.entry.number}` },
-                          quote: rv.entry.text,
-                        };
+                        const ref = verseRef(resolved, rv);
                         const selected = isSelected(ref);
                         return (
                           <Pressable
@@ -257,6 +318,8 @@ const styles = StyleSheet.create({
     borderBottomWidth: StyleSheet.hairlineWidth,
   },
   taskLabel: { fontSize: 15, flex: 1 },
+  verseActions: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginLeft: 32, marginTop: 8 },
+  verseActionButton: { borderWidth: 1, borderRadius: 10, paddingVertical: 6, paddingHorizontal: 12 },
   verseList: { marginLeft: 32, marginTop: 6, marginBottom: 8, gap: 6 },
   verseRow: { borderWidth: StyleSheet.hairlineWidth, borderRadius: 10, padding: 10 },
   verseNumber: { fontSize: 12, fontWeight: '700', marginBottom: 3 },

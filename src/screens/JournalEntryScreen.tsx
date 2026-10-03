@@ -14,7 +14,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { MainStackParamList, SavedReference, FormacjaJournalSource } from '../types';
-import { toRoman } from '../data/formacja';
+import { formacjaWeekLabel, toRoman } from '../data/formacja';
 import { useAppTheme } from '../context/ThemeContext';
 import { getDraft, setDraft, clearDraft, type JournalDraft } from '../services/draftService';
 import {
@@ -253,7 +253,8 @@ export default function JournalEntryScreen({ navigation, route }: Props) {
               PRZEMYŚLENIE Z FORMACJI
             </Text>
             <Text style={{ color: colors.text, fontSize: 13, marginTop: 2 }}>
-              Tydzień {formacjaSource.weekNumber} · Dzień {toRoman(formacjaSource.dayNumber)} —{' '}
+              {formacjaWeekLabel(formacjaSource.weekId, formacjaSource.weekNumber)} · Dzień{' '}
+              {toRoman(formacjaSource.dayNumber)} —{' '}
               {formacjaSource.dayTitle}
             </Text>
           </View>

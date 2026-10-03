@@ -1,17 +1,18 @@
 // src/screens/FormacjaWeekScreen.tsx
 import React, { useCallback, useEffect, useState } from 'react';
-import { Text, FlatList, Pressable, StyleSheet } from 'react-native';
+import { View, Text, FlatList, Pressable, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { MainStackParamList } from '../types';
 import { useAppTheme } from '../context/ThemeContext';
-import { FORMACJA_WEEKS, toRoman } from '../data/formacja';
+import { FORMACJA_WEEKS, formacjaWeekLabel, toRoman } from '../data/formacja';
 import { getAllCompletedCounts } from '../services/formacjaService';
 
 type Props = NativeStackScreenProps<MainStackParamList, 'FormacjaWeek'>;
 
-// Lista dni (I-VII) w obrębie jednego tygodnia formacji.
+// Lista dni (I-VII) w obrębie jednego tygodnia formacji, poprzedzona
+// ewentualnym wstępem z okładki zeszytu.
 export default function FormacjaWeekScreen({ route, navigation }: Props) {
   const { colors } = useAppTheme();
   const { weekId } = route.params;
@@ -48,7 +49,19 @@ export default function FormacjaWeekScreen({ route, navigation }: Props) {
         data={week.days}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.listContent}
-        ListHeaderComponent={<Text style={[styles.weekTitle, { color: colors.text }]}>{week.title}</Text>}
+        ListHeaderComponent={
+          <View style={styles.header}>
+            <Text style={[styles.blockLabel, { color: colors.formacja }]}>
+              {formacjaWeekLabel(week.id, week.number)}
+            </Text>
+            <Text style={[styles.weekTitle, { color: colors.text }]}>{week.title}</Text>
+            {week.intro?.map((p, i) => (
+              <Text key={i} style={[styles.intro, { color: colors.subtext }]}>
+                {p}
+              </Text>
+            ))}
+          </View>
+        }
         renderItem={({ item: day }) => {
           const done = completedCounts[day.id] ?? 0;
           const total = day.tasks.length;
@@ -75,7 +88,10 @@ export default function FormacjaWeekScreen({ route, navigation }: Props) {
 const styles = StyleSheet.create({
   flex: { flex: 1 },
   listContent: { padding: 16 },
-  weekTitle: { fontSize: 20, fontWeight: '700', marginBottom: 14 },
+  header: { marginBottom: 14 },
+  blockLabel: { fontSize: 12, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.5 },
+  weekTitle: { fontSize: 20, fontWeight: '700', marginTop: 2 },
+  intro: { fontSize: 14, lineHeight: 21, marginTop: 8 },
   dayCard: {
     borderWidth: StyleSheet.hairlineWidth,
     borderRadius: 16,
