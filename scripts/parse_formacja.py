@@ -36,7 +36,7 @@ bible = json.load(open(os.path.join(REPO, 'src/data/biblia.json'), encoding='utf
 ROMAN = {'I': 1, 'II': 2, 'III': 3, 'IV': 4, 'V': 5, 'VI': 6, 'VII': 7}
 
 SECTIONS = [
-    ('rok1', 'Rok I', 'Dziennik Nowego Życia', [
+    ('rok1', 'Rok I', 'Część I', [
         ('formacja_1_rok_01_Zeszyt_Wstepny', 1, 'Tydzień wstępny'),
         ('formacja_1_rok_02_Poznaj_rodzine', 2, None),  # ręcznie opracowany w formacja.ts
         ('formacja_1_rok_03_Ojciec_mowi', 3, 'Twój Ojciec mówi do Ciebie'),
@@ -55,7 +55,7 @@ SECTIONS = [
         ('formacja_1_rok_16_Podsumowanie', 16, 'Podsumowanie'),
         ('formacja_1_rok_17_Pewnosc', 17, 'Pewność chrześcijańska'),
     ]),
-    ('rok3-kosciol', 'Rok III', 'Kościół', [
+    ('rok3-kosciol', 'Rok III', 'Część I – Kościół', [
         ('formacja_3rok_kosciol_01_Duch_Swiety_w_dzialaniu', 1, 'Duch Święty w działaniu'),
         ('formacja_3rok_kosciol_02_Pierwsze_wieki_Kosciola', 2, 'Pierwsze wieki Kościoła'),
         ('formacja_3rok_kosciol_03_Misterium_Wspolnoty', 3, 'Misterium widzialnej i niewidzialnej wspólnoty'),
@@ -68,7 +68,7 @@ SECTIONS = [
         ('formacja_3rok_kosciol_10_Maryja_i_inni', 10, 'Maryja i inni'),
         ('formacja_3rok_kosciol_11_Pytania_o_Kosciol', 11, 'Pytania o Kościół'),
     ]),
-    ('rok3-osobowosc', 'Rok III', 'Dojrzała osobowość', [
+    ('rok3-osobowosc', 'Rok III', 'Część IV – Dojrzała osobowość', [
         ('formacja_3rok_dojrzala_osobowosc_01_Rownowaga_psychiczna', 1, 'Równowaga psychiczna'),
         ('formacja_3rok_dojrzala_osobowosc_02_Stabilny_rozwoj', 2, 'Stabilny rozwój'),
         ('formacja_3rok_dojrzala_osobowosc_03_Ugruntowana_wiara', 3, 'Ugruntowana wiara'),

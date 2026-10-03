@@ -2,7 +2,7 @@
  {
   "id": "rok1",
   "title": "Rok I",
-  "subtitle": "Dziennik Nowego Życia",
+  "subtitle": "Część I",
   "weeks": [
    {
     "id": "tydzien-1",
@@ -3206,7 +3206,7 @@
  {
   "id": "rok3-kosciol",
   "title": "Rok III",
-  "subtitle": "Kościół",
+  "subtitle": "Część I – Kościół",
   "weeks": [
    {
     "id": "rok3-kosciol-tydzien-1",
@@ -6108,7 +6108,7 @@
  {
   "id": "rok3-osobowosc",
   "title": "Rok III",
-  "subtitle": "Dojrzała osobowość",
+  "subtitle": "Część IV – Dojrzała osobowość",
   "weeks": [
    {
     "id": "rok3-osobowosc-tydzien-1",

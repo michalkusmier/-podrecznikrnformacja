@@ -46,7 +46,7 @@ export interface FormacjaWeek {
 export interface FormacjaSection {
   id: string; // 'rok1', 'rok3-kosciol', 'rok3-osobowosc'
   title: string; // "Rok I", "Rok III"
-  subtitle: string; // "Dziennik Nowego Życia", "Kościół", "Dojrzała osobowość"
+  subtitle: string; // część roku: "Część I", "Część I – Kościół", "Część IV – Dojrzała osobowość"
   weeks: FormacjaWeek[];
 }
 
@@ -284,12 +284,11 @@ export function findFormacjaSection(weekId: string): FormacjaSection | undefined
   return FORMACJA_SECTIONS.find((s) => s.weeks.some((w) => w.id === weekId));
 }
 
-// "Rok I · Tydzień 3" / "Rok III · Kościół · Tydzień 3" - numery tygodni
+// "Rok I · Część I · Tydzień 3" / "Rok III · Część I – Kościół · Tydzień 3" - numery tygodni
 // powtarzają się w różnych blokach, więc w historii dziennika i na ekranie
 // dnia pokazujemy też blok.
 export function formacjaWeekLabel(weekId: string, weekNumber: number): string {
   const section = findFormacjaSection(weekId);
   if (!section) return `Tydzień ${weekNumber}`;
-  const block = section.id === 'rok1' ? section.title : `${section.title} · ${section.subtitle}`;
-  return `${block} · Tydzień ${weekNumber}`;
+  return `${section.title} · ${section.subtitle} · Tydzień ${weekNumber}`;
 }
