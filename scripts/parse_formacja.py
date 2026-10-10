@@ -22,6 +22,13 @@ Nowy zeszyt: dopisz go do SECTIONS (nazwa pliku .txt bez rozszerzenia, numer
 tygodnia, tytuł). Heurystyki (tytuł dnia, zadania "Zapisz"/"Tekst do
 modlitwy", "Zapamiętaj") nie są doskonałe - przejrzyj plik podglądu i w razie
 potrzeby dopisz poprawkę do TITLE_OVERRIDES / LABEL_OVERRIDES / post_patch.
+
+Zeszyty, których nie ma w .doc (np. Rok I Część II - tylko papier ze
+zdjęć), są przepisane ręcznie do scripts/transkrypcje/<id sekcji>/tydzien-N.txt
+w prostym formacie bez heurystyk (opis w parse_transcript) i dopisane do
+TRANSCRIPT_SECTIONS. Same te sekcje, bez Worda, odświeża:
+
+    python scripts/parse_formacja.py --transkrypcje [podglad.txt]
 """
 import re, json, sys, os
 
@@ -29,6 +36,7 @@ REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TXT = sys.argv[1] if len(sys.argv) > 1 else 'txt'
 REVIEW = sys.argv[2] if len(sys.argv) > 2 else None
 OUT = os.path.join(REPO, 'src', 'data', 'formacjaContent.json')
+TRANSCRIPTS = os.path.join(REPO, 'scripts', 'transkrypcje')
 
 books = json.load(open(os.path.join(REPO, 'src/data/biblia_books.json'), encoding='utf-8'))['order']
 bible = json.load(open(os.path.join(REPO, 'src/data/biblia.json'), encoding='utf-8'))
@@ -75,6 +83,14 @@ SECTIONS = [
         ('formacja_3rok_dojrzala_osobowosc_04_duchowosc_SNE_euch', 4, 'Duchowość SNE jest eucharystyczna'),
     ]),
 ]
+
+# Sekcje z ręcznych transkrypcji (scripts/transkrypcje/<id>/tydzien-N.txt).
+TRANSCRIPT_SECTIONS = [
+    ('rok1-modlitwa', 'Rok I', 'Część II – Modlitwa osobista'),
+]
+
+# Kolejność sekcji w formacjaContent.json (= na liście w aplikacji).
+SECTION_ORDER = ['rok1', 'rok1-modlitwa', 'rok1-uzdrowienie', 'rok3-kosciol', 'rok3-osobowosc']
 
 # Ręczne poprawki tam, gdzie heurystyka nie wystarcza (id dnia -> pola).
 TITLE_OVERRIDES = {
@@ -604,7 +620,114 @@ def post_patch(d):
         d['remember'] = fix_quotes(d['remember'])
 
 
+def parse_transcript(path, wid):
+    """Ręczna transkrypcja tygodnia. Linie:
+    '# Tydzień N: Tytuł', '## Dzień N' albo '## Dzień N: Tytuł',
+    '!módl REF', '!zapisz REF', '!zadanie Treść', '!zapamiętaj Zdanie',
+    '- punkt', '| wers' (kolejne wersy łączone w jeden akapit), '% komentarz';
+    każda inna niepusta linia to akapit. Tekst przed pierwszym dniem = wstęp."""
+    week, day, verse = None, None, None
+    intro = []
+    for n, raw in enumerate(open(path, encoding='utf-8-sig').read().splitlines(), 1):
+        l = raw.strip()
+        if not l.startswith('|'):
+            verse = None
+        if not l or l.startswith('%'):
+            continue
+        where = f'{os.path.basename(path)}:{n}'
+        wm = re.fullmatch(r'# Tydzień (\d+): (.+)', l)
+        dm = re.fullmatch(r'## Dzień (\d+)(?:: (.+))?', l)
+        if wm:
+            week = {'id': wid, 'number': int(wm.group(1)), 'title': wm.group(2), 'days': []}
+        elif dm:
+            num = int(dm.group(1))
+            day = {'id': f'{wid}-dzien-{num}', 'number': num, 'title': dm.group(2), 'paragraphs': [], '_tasks': []}
+            week['days'].append(day)
+        elif day is None:
+            intro.append(l)
+        elif l.startswith('!'):
+            cmd, _, arg = l[1:].partition(' ')
+            arg = arg.strip()
+            if cmd in ('módl', 'zapisz'):
+                assert ref_valid(arg), f'{where}: niepoprawny odnośnik {arg!r}'
+                label = f'Módl się tekstem: {arg}' if cmd == 'módl' else f'Zapisz: {arg}'
+                day['_tasks'].append({'label': label, 'kind': 'pray' if cmd == 'módl' else 'write', 'reference': arg})
+            elif cmd == 'zadanie':
+                day['_tasks'].append({'label': arg, 'kind': 'write'})
+            elif cmd == 'zapamiętaj':
+                day['remember'] = arg
+            else:
+                raise ValueError(f'{where}: nieznane polecenie !{cmd}')
+        elif l.startswith('|'):
+            text = l[1:].strip()
+            if verse is None:
+                day['paragraphs'].append(text)
+                verse = len(day['paragraphs']) - 1
+            else:
+                day['paragraphs'][verse] += '\n' + text
+        elif l.startswith('- '):
+            day['paragraphs'].append('• ' + l[2:].strip())
+        else:
+            day['paragraphs'].append(l)
+    assert week and week['days'], f'{path}: brak tygodnia albo dni'
+    if intro:
+        week['intro'] = intro
+    for d in week['days']:
+        if not d['title']:  # jak w zeszytach .doc: dzień bez tytułu -> tekst do modlitwy
+            pray = [t for t in d['_tasks'] if t['kind'] == 'pray']
+            d['title'] = pray[0]['reference'] if pray else week['title']
+        # 'tasks' na końcu (po 'remember'), jak w sekcjach z .doc
+        d['tasks'] = [dict(id=f"{d['id']}-t{i + 1}", **t) for i, t in enumerate(d.pop('_tasks'))]
+    return week
+
+
+def transcript_sections(report):
+    out = []
+    for sid, stitle, ssub in TRANSCRIPT_SECTIONS:
+        sec = {'id': sid, 'title': stitle, 'subtitle': ssub, 'weeks': []}
+        folder = os.path.join(TRANSCRIPTS, sid)
+        files = sorted((f for f in os.listdir(folder) if re.fullmatch(r'tydzien-\d+\.txt', f)),
+                       key=lambda f: int(re.search(r'\d+', f).group()))
+        for f in files:
+            num = int(re.search(r'\d+', f).group())
+            week = parse_transcript(os.path.join(folder, f), f'{sid}-tydzien-{num}')
+            assert week['number'] == num, f'{f}: numer tygodnia w pliku to {week["number"]}'
+            sec['weeks'].append(week)
+            report.append(f'\n\n######## {stitle} {ssub} – Tydzień {num}: {week["title"]}')
+            for p in week.get('intro', []):
+                report.append('  [INTRO] ' + p)
+            for d in week['days']:
+                report.append(f"\n=== Dzień {d['number']}: {d['title']}")
+                for p in d['paragraphs']:
+                    report.append('  ' + p.replace('\n', ' / '))
+                if 'remember' in d:
+                    report.append('  [ZAPAMIĘTAJ] ' + d['remember'])
+                for t in d['tasks']:
+                    report.append(f"  [{t['kind']}] {t['label']}" + (f"  <{t['reference']}>" if t.get('reference') else ''))
+        out.append(sec)
+    return out
+
+
+def write_output(sections, report, review):
+    sections.sort(key=lambda s: SECTION_ORDER.index(s['id']))
+    with open(OUT, 'w', encoding='utf-8', newline='\n') as f:
+        json.dump(sections, f, ensure_ascii=False, indent=1)
+    if review:
+        with open(review, 'w', encoding='utf-8') as f:
+            f.write('\n'.join(report))
+
+
+def main_transcripts_only(review):
+    """Podmienia w istniejącym formacjaContent.json tylko sekcje z transkrypcji."""
+    report = []
+    ids = {sid for sid, _, _ in TRANSCRIPT_SECTIONS}
+    sections = [s for s in json.load(open(OUT, encoding='utf-8')) if s['id'] not in ids]
+    write_output(sections + transcript_sections(report), report, review)
+
+
 def main():
+    if TXT == '--transkrypcje':
+        return main_transcripts_only(REVIEW)
     out_sections, report = [], []
     for sid, stitle, ssub, weeks in SECTIONS:
         sec = {'id': sid, 'title': stitle, 'subtitle': ssub, 'weeks': []}
@@ -657,11 +780,7 @@ def main():
                         print('  !! BLANK w akapicie:', did, p[:80], file=sys.stderr)
             sec['weeks'].append(week)
         out_sections.append(sec)
-    with open(OUT, 'w', encoding='utf-8', newline='\n') as f:
-        json.dump(out_sections, f, ensure_ascii=False, indent=1)
-    if REVIEW:
-        with open(REVIEW, 'w', encoding='utf-8') as f:
-            f.write('\n'.join(report))
+    write_output(out_sections + transcript_sections(report), report, REVIEW)
 
 
 if __name__ == '__main__':
