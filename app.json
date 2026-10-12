@@ -39,7 +39,9 @@
       ],
       "expo-status-bar",
       "expo-video",
-      "expo-sharing"
+      "expo-sharing",
+      "@react-native-community/datetimepicker",
+      "expo-notifications"
     ],
     "extra": {
       "eas": {
