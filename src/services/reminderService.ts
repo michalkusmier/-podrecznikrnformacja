@@ -133,9 +133,8 @@ export async function ensureNotificationPermission(): Promise<'granted' | 'denie
 }
 
 // Kasuje wszystkie zaplanowane powiadomienia appki (innych lokalnych
-// powiadomień appka nie ma) i planuje od nowa według ustawień. Rzuca przy
-// błędzie planowania - ekran pokazuje wtedy komunikat.
-export async function syncScheduledReminders(settings: ReminderSettings): Promise<void> {
+// powiadomień appka nie ma) i planuje od nowa według ustawień.
+async function runSync(settings: ReminderSettings): Promise<void> {
   if (Platform.OS === 'android') {
     await Notifications.setNotificationChannelAsync(CHANNEL_ID, {
       name: 'Przypomnienia',
@@ -155,4 +154,37 @@ export async function syncScheduledReminders(settings: ReminderSettings): Promis
       },
     });
   }
+}
+
+// Przeplanowania idą po kolei, nigdy równolegle: szybkie zmiany na ekranie
+// (np. odznaczenie pn, a zaraz wt) inaczej nakładałyby się i zostawiały
+// odznaczone albo podwójne powiadomienia. Gdy przeplanowanie trwa, kolejne
+// prośby czekają, a wykonuje się tylko najnowsza. Rzuca, jeśli nie udało się
+// ostatnie przeplanowanie - ekran pokazuje wtedy komunikat.
+let syncRunning: Promise<void> | null = null;
+let syncPending: ReminderSettings | null = null;
+
+export function syncScheduledReminders(settings: ReminderSettings): Promise<void> {
+  syncPending = settings;
+  if (!syncRunning) {
+    syncRunning = (async () => {
+      let lastError: unknown = null;
+      try {
+        while (syncPending) {
+          const next = syncPending;
+          syncPending = null;
+          try {
+            await runSync(next);
+            lastError = null;
+          } catch (e) {
+            lastError = e;
+          }
+        }
+      } finally {
+        syncRunning = null;
+      }
+      if (lastError) throw lastError;
+    })();
+  }
+  return syncRunning;
 }
