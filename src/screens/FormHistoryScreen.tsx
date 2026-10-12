@@ -10,6 +10,7 @@ import { useAppTheme } from '../context/ThemeContext';
 import { getFormDataList, deleteFormDataEntry } from '../services/formDataService';
 import { formatVerseNumber } from '../utils/formatVerse';
 import { shareJournalEntry } from '../utils/shareEntry';
+import { exportBackup, pickBackupForImport, applyImport } from '../services/journalBackupService';
 import { formacjaWeekLabel, toRoman } from '../data/formacja';
 
 type Props = BottomTabScreenProps<TabParamList, 'DziennikTab'>;
@@ -63,6 +64,53 @@ export default function FormHistoryScreen({ navigation }: Props) {
     ]);
   }
 
+  // Kopia zapasowa - dziennik jest tylko na telefonie, więc to jedyna
+  // ochrona przed jego utratą przy zgubieniu/zmianie telefonu.
+  function openBackupMenu() {
+    Alert.alert(
+      'Kopia zapasowa',
+      'Dziennik jest zapisany tylko na tym telefonie. Zapisz kopię w bezpiecznym miejscu (np. na Dysku Google), żeby móc go przywrócić na innym telefonie.',
+      [
+        { text: 'Eksportuj do pliku', onPress: runExport },
+        { text: 'Przywróć z pliku', onPress: runImport },
+        { text: 'Anuluj', style: 'cancel' },
+      ]
+    );
+  }
+
+  async function runExport() {
+    const result = await exportBackup();
+    if (!result.ok) Alert.alert('Kopia zapasowa', result.error);
+  }
+
+  async function runImport() {
+    const preview = await pickBackupForImport();
+    if (!preview) return;
+    if (!preview.ok) {
+      Alert.alert('Nie można przywrócić', preview.error);
+      return;
+    }
+    const { addedCount, duplicateCount } = preview.plan;
+    Alert.alert(
+      'Przywrócić z kopii?',
+      `Nowe wpisy: ${addedCount}
+Już w dzienniku (pominięte): ${duplicateCount}
+
+Obecne wpisy nie zostaną zmienione ani usunięte. Postęp Formacji z kopii zostanie dołączony.`,
+      [
+        { text: 'Anuluj', style: 'cancel' },
+        {
+          text: 'Przywróć',
+          onPress: async () => {
+            await applyImport(preview);
+            load();
+            Alert.alert('Gotowe', `Przywrócono wpisów: ${addedCount}.`);
+          },
+        },
+      ]
+    );
+  }
+
   // Fizyczny/gestowy przycisk "Wstecz" na Androidzie ma robić dokładnie to
   // samo, co przycisk w nagłówku - wracać na ekran startowy.
   useFocusEffect(
@@ -107,6 +155,9 @@ export default function FormHistoryScreen({ navigation }: Props) {
       <View style={[styles.header, { borderBottomColor: colors.border }]}>
         <Text style={[styles.headerTitle, { color: colors.text }]}>Historia Dziennika</Text>
         <View style={styles.headerButtons}>
+          <Pressable onPress={openBackupMenu} hitSlop={8} accessibilityLabel="Kopia zapasowa">
+            <Ionicons name="archive-outline" size={24} color={colors.primary} />
+          </Pressable>
           <Pressable onPress={addEntry} hitSlop={8} accessibilityLabel="Dodaj wpis">
             <Ionicons name="add-circle-outline" size={24} color={colors.primary} />
           </Pressable>

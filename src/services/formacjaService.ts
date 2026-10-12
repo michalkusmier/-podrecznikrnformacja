@@ -53,3 +53,19 @@ export async function getAllCompletedCounts(): Promise<Record<string, number>> {
   }
   return counts;
 }
+
+// Cały postęp naraz - do kopii zapasowej dziennika (journalBackupService).
+export async function getCompletedMap(): Promise<Record<string, string[]>> {
+  return readMap();
+}
+
+// Przywracanie z kopii: suma zbiorów - zadanie ukończone w kopii albo na tym
+// telefonie zostaje ukończone. Nigdy niczego nie odznacza.
+export async function mergeCompletedMap(incoming: Record<string, string[]>): Promise<void> {
+  const map = await readMap();
+  const merged: CompletedMap = { ...map };
+  for (const dayId of Object.keys(incoming)) {
+    merged[dayId] = Array.from(new Set([...(map[dayId] ?? []), ...incoming[dayId]]));
+  }
+  await writeMap(merged);
+}

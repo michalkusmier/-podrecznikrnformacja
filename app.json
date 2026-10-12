@@ -38,7 +38,8 @@
         }
       ],
       "expo-status-bar",
-      "expo-video"
+      "expo-video",
+      "expo-sharing"
     ],
     "extra": {
       "eas": {

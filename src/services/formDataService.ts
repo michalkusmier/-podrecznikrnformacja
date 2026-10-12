@@ -84,3 +84,11 @@ export async function deleteFormDataEntry(id: string): Promise<void> {
   const list = await getFormDataList();
   await persist(list.filter((e) => e.id !== id));
 }
+
+// Przywracanie z kopii zapasowej - zapisuje gotową, scaloną listę (lokalne
+// wpisy + brakujące z kopii, z oryginalnymi id i w kolejności z kopii; patrz
+// planMerge w journalBackupService). Nigdy nie usuwa lokalnych wpisów, bo
+// scalona lista zawsze je zawiera.
+export async function saveMergedFormDataList(merged: SavedFormEntry[]): Promise<void> {
+  await persist(merged);
+}

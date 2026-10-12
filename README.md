@@ -21,6 +21,19 @@ aplikacja natywna na telefon — szybsza, lżejsza i bez przeglądarkowego silni
 - **Zapisanie formularza nie wracało na ekran startowy** - naprawione,
   `popToTop()` zamiast przejścia do „Modlitwy".
 
+## Nowość: kopia zapasowa dziennika
+
+Dziennik jest zapisywany **tylko na telefonie** (nie trafia na serwer). Żeby
+nie stracić go przy zgubieniu lub zmianie telefonu, w **Historii Dziennika**
+jest ikona **Kopia zapasowa**:
+
+- **Eksportuj do pliku**: zapisuje wpisy i postęp Formacji do pliku
+  `podrecznik-modlitwy-dziennik-RRRR-MM-DD.json` i otwiera systemowe
+  „Udostępnij” (Dysk Google, mail, pamięć telefonu itp.).
+- **Przywróć z pliku**: wybierasz plik kopii, appka pokazuje, ile wpisów
+  doda, i po potwierdzeniu je dołącza. Import **niczego nie usuwa ani nie
+  nadpisuje**: wpisy, które już są w dzienniku, są pomijane.
+
 ## Nowość: przeglądarka Biblii Tysiąclecia (offline)
 
 Ekran **Biblia Tysiąclecia** (dostępny z ekranu głównego) ma dwie zakładki:
