@@ -91,6 +91,7 @@ export type MainStackParamList = {
   // formacjaSource - wypełniany tylko przy tworzeniu NOWEGO wpisu z ekranu
   // dnia Formacji (przycisk "Zapisz przemyślenie"), żeby oznaczyć powiązanie.
   JournalEntry: { entryId?: string; formacjaSource?: FormacjaJournalSource } | undefined;
+  Reminders: undefined;
 };
 
 export type TabParamList = {

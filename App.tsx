@@ -30,6 +30,7 @@ import SelectedItemsScreen from './src/screens/SelectedItemsScreen';
 import MyFormScreen from './src/screens/MyFormScreen';
 import FormHistoryScreen from './src/screens/FormHistoryScreen';
 import JournalEntryScreen from './src/screens/JournalEntryScreen';
+import RemindersScreen from './src/screens/RemindersScreen';
 
 const Stack = createNativeStackNavigator<MainStackParamList>();
 const Tab = createBottomTabNavigator<TabParamList>();
@@ -88,6 +89,14 @@ function MainStackNavigator() {
           headerRight: () => (
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
               <Pressable
+                onPress={() => navigation.navigate('Reminders')}
+                hitSlop={12}
+                accessibilityRole="button"
+                accessibilityLabel="Przypomnienia"
+              >
+                <Ionicons name="notifications-outline" size={24} color={colors.text} />
+              </Pressable>
+              <Pressable
                 onPress={toggleTheme}
                 hitSlop={12}
                 accessibilityRole="button"
@@ -109,6 +118,7 @@ function MainStackNavigator() {
         })}
       />
       <Stack.Screen name="Wstep" component={WstepScreen} options={{ title: 'Wstęp' }} />
+      <Stack.Screen name="Reminders" component={RemindersScreen} options={{ title: 'Przypomnienia' }} />
       <Stack.Screen name="Biblia" component={BibliaScreen} options={{ title: 'Biblia Tysiąclecia' }} />
       <Stack.Screen
         name="DivineTitles"
