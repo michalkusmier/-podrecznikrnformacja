@@ -106,12 +106,24 @@ export default function HomeScreen({ navigation, route }: Props) {
   // Boga albo z Formacji) wracamy do samej siatki kafelków - React
   // Navigation nie odmontowuje tego ekranu przy nawigacji, więc bez tego
   // stan wyboru zostałby zapamiętany.
+  //
+  // Wyjątek: wejście z powiadomienia przypomnienia (params openSection +
+  // openAt) - wtedy otwieramy wskazaną sekcję zamiast resetu. Każdy openAt
+  // obsługujemy raz, więc późniejszy powrót na Główną znów zwija siatkę.
+  const handledOpenAtRef = useRef<number | undefined>(undefined);
+  const openAt = route.params?.openAt;
+  const openSection = route.params?.openSection;
   useFocusEffect(
     useCallback(() => {
-      setCurrentSection('');
       setCurrentSubSection('');
       setCurrentSubSubSection('');
-    }, [])
+      if (openAt !== undefined && openSection && openAt !== handledOpenAtRef.current) {
+        handledOpenAtRef.current = openAt;
+        setCurrentSection(openSection === 'czytania' ? CZYTANIA_SECTION_KEY : ADORACJA_KEY);
+        return;
+      }
+      setCurrentSection('');
+    }, [openAt, openSection])
   );
 
   // Adoracja/Proklamacja/Biblia/Czytania NIE są osobnymi ekranami - to stan

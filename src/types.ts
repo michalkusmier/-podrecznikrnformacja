@@ -77,7 +77,9 @@ export type MainStackParamList = {
   // focused "Home" sama w sobie nic nie zmienia i nie odpala useFocusEffect,
   // ale zmiana parametrów owszem, więc to jedyny niezawodny sposób na reset
   // z zewnątrz (np. z zakładki "Główna" na dolnym pasku).
-  Home: { resetAt?: number } | undefined;
+  // openSection + openAt - otwarcie sekcji z powiadomienia przypomnienia
+  // (navigation/handleReminderTap.ts); openAt to token jak resetAt.
+  Home: { resetAt?: number; openSection?: 'adoracja' | 'czytania'; openAt?: number } | undefined;
   Wstep: undefined;
   Biblia: { openBook?: string; openChapter?: number; openVerseNumber?: string } | undefined;
   DivineTitles: undefined;

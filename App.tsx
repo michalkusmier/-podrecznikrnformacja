@@ -1,5 +1,6 @@
 // App.tsx
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import * as Notifications from 'expo-notifications';
 import { StatusBar } from 'expo-status-bar';
 import { setAudioModeAsync } from 'expo-audio';
 import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
@@ -17,6 +18,13 @@ import { AuthProvider, useAuth } from './src/context/AuthContext';
 import GlobalPrayerBadge from './src/components/GlobalPrayerBadge';
 import FormacjaAccessGate from './src/components/FormacjaAccessGate';
 import { navigationRef } from './src/navigation/navigationRef';
+import { handleReminderTap } from './src/navigation/handleReminderTap';
+import {
+  getReminderSettings,
+  hasNotificationPermission,
+  syncScheduledReminders,
+  type ReminderKind,
+} from './src/services/reminderService';
 import type { MainStackParamList, TabParamList } from './src/types';
 
 import HomeScreen from './src/screens/HomeScreen';
@@ -218,8 +226,61 @@ function TabNavigator() {
   );
 }
 
+// Przypomnienia pokazujemy jako baner także wtedy, gdy appka jest otwarta.
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowBanner: true,
+    shouldShowList: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+  }),
+});
+
+const REMINDER_KINDS_SET = new Set<string>(['czytania', 'formacja', 'adoracja']);
+
+// Most między powiadomieniami a nawigacją (nic nie renderuje):
+// - przy starcie appki planuje przypomnienia od nowa (np. po aktualizacji),
+//   ale tylko gdy zgoda już jest - o zgodę pyta dopiero ekran Przypomnienia,
+// - stuknięcie w powiadomienie (także przy zimnym starcie) otwiera właściwy
+//   ekran - dopiero gdy nawigacja jest gotowa i wiadomo, czy jest sesja.
+//   Każde stuknięcie obsługujemy raz (zapamiętany klucz).
+function ReminderBridge({ navReady }: { navReady: boolean }) {
+  const { session, loading } = useAuth();
+  const response = Notifications.useLastNotificationResponse();
+  const handledRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    (async () => {
+      if (await hasNotificationPermission()) {
+        await syncScheduledReminders(await getReminderSettings());
+      }
+    })().catch((e) => console.error('Nie udało się zsynchronizować przypomnień:', e));
+  }, []);
+
+  useEffect(() => {
+    if (!response || !navReady || loading) return;
+    if (response.actionIdentifier !== Notifications.DEFAULT_ACTION_IDENTIFIER) return;
+    // Powiadomienie tygodniowe ma co tydzień ten sam identifier - klucz
+    // uwzględnia też datę doręczenia, żeby stuknięcie za tydzień też zadziałało.
+    const { identifier, content } = response.notification.request;
+    const key = `${identifier}:${response.notification.date}`;
+    if (handledRef.current === key) return;
+    const kind = content.data?.reminderKind;
+    if (typeof kind !== 'string' || !REMINDER_KINDS_SET.has(kind)) return;
+    handledRef.current = key;
+    // Bez tego ta sama odpowiedź mogłaby wrócić przy następnym starcie appki.
+    Notifications.clearLastNotificationResponse();
+    handleReminderTap(kind as ReminderKind, !!session).catch((e) =>
+      console.error('Nie udało się otworzyć ekranu z przypomnienia:', e)
+    );
+  }, [response, navReady, loading, session]);
+
+  return null;
+}
+
 function Navigation() {
   const { isDark, colors } = useAppTheme();
+  const [navReady, setNavReady] = useState(false);
 
   const navTheme = {
     ...(isDark ? DarkTheme : DefaultTheme),
@@ -234,10 +295,11 @@ function Navigation() {
   };
 
   return (
-    <NavigationContainer ref={navigationRef} theme={navTheme}>
+    <NavigationContainer ref={navigationRef} theme={navTheme} onReady={() => setNavReady(true)}>
       <StatusBar style={isDark ? 'light' : 'dark'} />
       <TabNavigator />
       <GlobalPrayerBadge />
+      <ReminderBridge navReady={navReady} />
     </NavigationContainer>
   );
 }
