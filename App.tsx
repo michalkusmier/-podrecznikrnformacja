@@ -84,7 +84,7 @@ function MainStackNavigator() {
         name="Home"
         component={HomeScreen}
         options={({ navigation }) => ({
-          title: 'Podręcznik Adoracji Boga',
+          title: 'Podręcznik Modlitwy',
           headerRight: () => (
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
               <Pressable

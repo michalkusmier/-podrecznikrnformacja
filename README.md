@@ -1,4 +1,4 @@
-# Podręcznik Adoracji — wersja React Native (Expo)
+# Podręcznik Modlitwy — wersja React Native (Expo)
 
 Pełne przepisanie aplikacji z Ionic/Angular/Capacitor na **React Native + Expo**.
 Ta sama funkcjonalność (przeglądanie sekcji modlitewnych, wybór fragmentów,
