@@ -21,6 +21,19 @@ aplikacja natywna na telefon — szybsza, lżejsza i bez przeglądarkowego silni
 - **Zapisanie formularza nie wracało na ekran startowy** - naprawione,
   `popToTop()` zamiast przejścia do „Modlitwy".
 
+## Nowość: przypomnienia
+
+Ikona **dzwonka** w nagłówku ekranu startowego otwiera ekran **Przypomnienia**
+z trzema kartami: **Czytania dnia**, **Formacja** i **Adoracja / modlitwa**.
+Każda ma włącznik, godzinę i dni tygodnia (skróty „Codziennie” i „Pn–Pt”).
+
+- Powiadomienia planuje sam telefon. Działają przy zamkniętej aplikacji i bez
+  internetu, nic nie trafia na serwer.
+- Przy pierwszym włączeniu telefon zapyta o zgodę na powiadomienia. Jeśli
+  zgoda jest wyłączona, ekran pokaże przycisk do ustawień telefonu.
+- Stuknięcie w powiadomienie otwiera właściwe miejsce: Czytania dnia, ekran
+  Adoracji albo dzień z karty „Kontynuuj” w Formacji (po zalogowaniu).
+
 ## Nowość: kopia zapasowa dziennika
 
 Dziennik jest zapisywany **tylko na telefonie** (nie trafia na serwer). Żeby
