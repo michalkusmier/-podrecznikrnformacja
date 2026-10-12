@@ -9,7 +9,7 @@ import type { MainStackParamList, SavedFormEntry } from '../types';
 import { useAppTheme } from '../context/ThemeContext';
 import { useSelection } from '../context/SelectionContext';
 import { FORMACJA_WEEKS, formacjaWeekLabel, toRoman } from '../data/formacja';
-import { getCompletedTaskIds, setTaskCompleted } from '../services/formacjaService';
+import { getCompletedTaskIds, setTaskCompleted, setLastOpenedDay } from '../services/formacjaService';
 import { getFormDataListForFormacjaDay } from '../services/formDataService';
 import { resolveCitationVerses, type ResolvedCitation } from '../services/bibliaService';
 import { formatVerseNumber } from '../utils/formatVerse';
@@ -43,7 +43,9 @@ export default function FormacjaDayScreen({ route, navigation }: Props) {
 
   useEffect(() => {
     getCompletedTaskIds(dayId).then((ids) => setCompleted(new Set(ids)));
-  }, [dayId]);
+    // Cel przycisku "Kontynuuj" na liście Formacji.
+    if (day) setLastOpenedDay(dayId);
+  }, [dayId, day]);
 
   useFocusEffect(
     useCallback(() => {

@@ -4,7 +4,7 @@ import * as Sharing from 'expo-sharing';
 import * as DocumentPicker from 'expo-document-picker';
 import type { SavedFormEntry } from '../types';
 import { getFormDataList, saveMergedFormDataList } from './formDataService';
-import { getCompletedMap, mergeCompletedMap } from './formacjaService';
+import { getCompletedMap, mergeCompletedMap, getLastOpenedDay, setLastOpenedDay } from './formacjaService';
 
 // Kopia zapasowa dziennika do pliku. Dziennik celowo zostaje tylko na
 // telefonie (bez chmury) - ten plik to jedyny sposób, żeby nie stracić go
@@ -23,6 +23,8 @@ export interface JournalBackup {
   exportedAt: string;
   entries: SavedFormEntry[];
   formacjaCompletedTasks: Record<string, string[]>;
+  // Cel "Kontynuuj" w Formacji. Opcjonalne - starsze kopie go nie mają.
+  formacjaLastOpenedDay?: string;
 }
 
 export type ParseResult = { ok: true; backup: JournalBackup } | { ok: false; error: string };
@@ -71,6 +73,7 @@ export function parseBackup(text: string): ParseResult {
   if (typeof tasks !== 'object' || Array.isArray(tasks) || !Object.values(tasks).every(isStringArray)) {
     return { ok: false, error: 'Plik kopii jest uszkodzony (nieprawidłowy postęp Formacji).' };
   }
+  const lastDay = typeof o.formacjaLastOpenedDay === 'string' ? o.formacjaLastOpenedDay : undefined;
   return {
     ok: true,
     backup: {
@@ -80,6 +83,7 @@ export function parseBackup(text: string): ParseResult {
       exportedAt: typeof o.exportedAt === 'string' ? o.exportedAt : '',
       entries: o.entries,
       formacjaCompletedTasks: tasks as Record<string, string[]>,
+      formacjaLastOpenedDay: lastDay,
     },
   };
 }
@@ -140,6 +144,7 @@ export async function exportBackup(): Promise<ExportResult> {
     exportedAt: new Date().toISOString(),
     entries,
     formacjaCompletedTasks: await getCompletedMap(),
+    formacjaLastOpenedDay: (await getLastOpenedDay()) ?? undefined,
   };
 
   try {
@@ -196,4 +201,7 @@ export async function applyImport(preview: { plan: MergePlan; backup: JournalBac
     await saveMergedFormDataList(preview.plan.merged);
   }
   await mergeCompletedMap(preview.backup.formacjaCompletedTasks);
+  // Nie nadpisujemy "Kontynuuj" na telefonie, na którym już ktoś pracuje.
+  const lastDay = preview.backup.formacjaLastOpenedDay;
+  if (lastDay && !(await getLastOpenedDay())) await setLastOpenedDay(lastDay);
 }

@@ -19,6 +19,8 @@ interface ThemeColors {
   dziekczynienie: string;
   prosby: string;
   formacja: string;
+  // Ukończone (dni/tygodnie Formacji) - znaczek ✓.
+  success: string;
   border: string;
 }
 
@@ -33,6 +35,7 @@ const lightColors: ThemeColors = {
   dziekczynienie: '#8A2BE2',
   prosby: '#5F9EA0',
   formacja: '#B3423D',
+  success: '#2E7D32',
   border: '#E5E1DA',
 };
 
@@ -47,6 +50,7 @@ const darkColors: ThemeColors = {
   dziekczynienie: '#B98CF0',
   prosby: '#7FC2C4',
   formacja: '#FF6B6B',
+  success: '#66BB6A',
   border: '#352E48',
 };
 

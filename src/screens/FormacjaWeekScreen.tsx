@@ -6,7 +6,9 @@ import { useFocusEffect } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { MainStackParamList } from '../types';
 import { useAppTheme } from '../context/ThemeContext';
-import { FORMACJA_WEEKS, formacjaWeekLabel, toRoman } from '../data/formacja';
+import { Ionicons } from '@expo/vector-icons';
+import { FORMACJA_WEEKS, formacjaWeekLabel, toRoman, isDayComplete } from '../data/formacja';
+import ProgressBar from '../components/ProgressBar';
 import { getAllCompletedCounts } from '../services/formacjaService';
 
 type Props = NativeStackScreenProps<MainStackParamList, 'FormacjaWeek'>;
@@ -65,17 +67,26 @@ export default function FormacjaWeekScreen({ route, navigation }: Props) {
         renderItem={({ item: day }) => {
           const done = completedCounts[day.id] ?? 0;
           const total = day.tasks.length;
+          const complete = isDayComplete(day, completedCounts);
           return (
             <Pressable
               style={[styles.dayCard, { backgroundColor: colors.card, borderColor: colors.border }]}
               onPress={() => navigation.navigate('FormacjaDay', { weekId: week.id, dayId: day.id })}
             >
-              <Text style={[styles.dayNumber, { color: colors.formacja }]}>Dzień {toRoman(day.number)}</Text>
+              <View style={styles.dayHeaderRow}>
+                <Text style={[styles.dayNumber, { color: colors.formacja }]}>Dzień {toRoman(day.number)}</Text>
+                {complete && (
+                  <Ionicons name="checkmark-circle" size={20} color={colors.success} accessibilityLabel="Ukończony" />
+                )}
+              </View>
               <Text style={[styles.dayTitle, { color: colors.text }]}>{day.title}</Text>
               {total > 0 && (
-                <Text style={{ color: colors.subtext, marginTop: 6, fontSize: 13 }}>
-                  Zadania: {done}/{total}
-                </Text>
+                <>
+                  <Text style={{ color: complete ? colors.success : colors.subtext, marginTop: 6, fontSize: 13 }}>
+                    {complete ? 'Ukończony' : `Zadania: ${Math.min(done, total)}/${total}`}
+                  </Text>
+                  {!complete && <ProgressBar done={done} total={total} color={colors.formacja} />}
+                </>
               )}
             </Pressable>
           );
@@ -98,6 +109,7 @@ const styles = StyleSheet.create({
     padding: 18,
     marginBottom: 14,
   },
+  dayHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   dayNumber: { fontSize: 13, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.5 },
   dayTitle: { fontSize: 18, fontWeight: '700', marginTop: 4 },
 });

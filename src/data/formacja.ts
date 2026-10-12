@@ -292,3 +292,48 @@ export function formacjaWeekLabel(weekId: string, weekNumber: number): string {
   if (!section) return `Tydzień ${weekNumber}`;
   return `${section.title} · ${section.subtitle} · Tydzień ${weekNumber}`;
 }
+
+// Dzień ukończony = wszystkie jego zadania odhaczone. Dzień bez zadań nigdy
+// nie jest oznaczany jako ukończony (nie ma czego odhaczyć).
+// completedCounts - wynik formacjaService.getAllCompletedCounts().
+export function isDayComplete(day: FormacjaDay, completedCounts: Record<string, number>): boolean {
+  return day.tasks.length > 0 && (completedCounts[day.id] ?? 0) >= day.tasks.length;
+}
+
+export function isWeekComplete(week: FormacjaWeek, completedCounts: Record<string, number>): boolean {
+  const withTasks = week.days.filter((d) => d.tasks.length > 0);
+  return withTasks.length > 0 && withTasks.every((d) => isDayComplete(d, completedCounts));
+}
+
+export interface ContinueTarget {
+  section: FormacjaSection;
+  week: FormacjaWeek;
+  day: FormacjaDay;
+}
+
+// Cel przycisku "Kontynuuj": ostatnio otwarty dzień, a jeśli jest już
+// skończony - następny nieskończony dzień w tym samym roku (przez kolejne
+// tygodnie i części, np. Rok I Część I -> Część II, ale nie z Roku I do
+// Roku III - to osobne ścieżki). Dzień bez zadań liczy się tu jako zrobiony
+// (wystarczy go przeczytać). Gdy cały dalszy ciąg roku jest skończony,
+// zostaje ostatnio otwarty dzień. null - jeszcze żaden dzień nie był otwarty
+// (albo zniknął z treści).
+export function findContinueTarget(
+  lastDayId: string | null,
+  completedCounts: Record<string, number>
+): ContinueTarget | null {
+  if (!lastDayId) return null;
+  const startSection = FORMACJA_SECTIONS.find((s) =>
+    s.weeks.some((w) => w.days.some((d) => d.id === lastDayId))
+  );
+  if (!startSection) return null;
+
+  const yearDays: ContinueTarget[] = FORMACJA_SECTIONS.filter((s) => s.title === startSection.title).flatMap(
+    (section) => section.weeks.flatMap((week) => week.days.map((day) => ({ section, week, day })))
+  );
+  const start = yearDays.findIndex((t) => t.day.id === lastDayId);
+  const isDone = (t: ContinueTarget) => t.day.tasks.length === 0 || isDayComplete(t.day, completedCounts);
+
+  if (!isDone(yearDays[start])) return yearDays[start];
+  return yearDays.slice(start + 1).find((t) => !isDone(t)) ?? yearDays[start];
+}

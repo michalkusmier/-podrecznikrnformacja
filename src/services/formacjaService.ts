@@ -69,3 +69,24 @@ export async function mergeCompletedMap(incoming: Record<string, string[]>): Pro
   }
   await writeMap(merged);
 }
+
+// Ostatnio otwarty dzień Formacji - cel przycisku "Kontynuuj" na liście
+// Formacji (patrz findContinueTarget w data/formacja.ts).
+const LAST_DAY_KEY = 'formacjaLastOpenedDay';
+
+export async function setLastOpenedDay(dayId: string): Promise<void> {
+  try {
+    await AsyncStorage.setItem(LAST_DAY_KEY, dayId);
+  } catch (e) {
+    console.error('Nie udało się zapisać ostatnio otwartego dnia formacji:', e);
+  }
+}
+
+export async function getLastOpenedDay(): Promise<string | null> {
+  try {
+    return await AsyncStorage.getItem(LAST_DAY_KEY);
+  } catch (e) {
+    console.error('Nie udało się odczytać ostatnio otwartego dnia formacji:', e);
+    return null;
+  }
+}

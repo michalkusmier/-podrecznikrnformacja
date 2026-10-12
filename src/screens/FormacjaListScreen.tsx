@@ -7,8 +7,17 @@ import { Ionicons } from '@expo/vector-icons';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { MainStackParamList } from '../types';
 import { useAppTheme } from '../context/ThemeContext';
-import { FORMACJA_SECTIONS, type FormacjaSection, type FormacjaWeek } from '../data/formacja';
-import { getAllCompletedCounts } from '../services/formacjaService';
+import {
+  FORMACJA_SECTIONS,
+  findContinueTarget,
+  formacjaWeekLabel,
+  isWeekComplete,
+  toRoman,
+  type FormacjaSection,
+  type FormacjaWeek,
+} from '../data/formacja';
+import { getAllCompletedCounts, getLastOpenedDay } from '../services/formacjaService';
+import ProgressBar from '../components/ProgressBar';
 
 type Props = NativeStackScreenProps<MainStackParamList, 'Formacja'>;
 
@@ -47,6 +56,7 @@ function weeksLabel(n: number): string {
 export default function FormacjaListScreen({ navigation }: Props) {
   const { colors } = useAppTheme();
   const [completedCounts, setCompletedCounts] = useState<Record<string, number>>({});
+  const [lastDayId, setLastDayId] = useState<string | null>(null);
   // Najwyżej jeden otwarty rok i jedna otwarta część naraz.
   const [openYear, setOpenYear] = useState<string | null>(null);
   const [openPart, setOpenPart] = useState<string | null>(null);
@@ -63,8 +73,10 @@ export default function FormacjaListScreen({ navigation }: Props) {
       openedWeekRef.current = false;
 
       let active = true;
-      getAllCompletedCounts().then((counts) => {
-        if (active) setCompletedCounts(counts);
+      Promise.all([getAllCompletedCounts(), getLastOpenedDay()]).then(([counts, dayId]) => {
+        if (!active) return;
+        setCompletedCounts(counts);
+        setLastDayId(dayId);
       });
       return () => {
         active = false;
@@ -90,7 +102,7 @@ export default function FormacjaListScreen({ navigation }: Props) {
     for (const week of weeks) {
       for (const day of week.days) {
         total += day.tasks.length;
-        done += completedCounts[day.id] ?? 0;
+        done += Math.min(completedCounts[day.id] ?? 0, day.tasks.length);
       }
     }
     return { done, total };
@@ -98,6 +110,7 @@ export default function FormacjaListScreen({ navigation }: Props) {
 
   function renderWeek(week: FormacjaWeek) {
     const { done, total } = progress([week]);
+    const complete = isWeekComplete(week, completedCounts);
     return (
       <Pressable
         key={week.id}
@@ -107,11 +120,17 @@ export default function FormacjaListScreen({ navigation }: Props) {
           navigation.navigate('FormacjaWeek', { weekId: week.id });
         }}
       >
-        <Text style={[styles.weekNumber, { color: colors.formacja }]}>Tydzień {week.number}</Text>
+        <View style={styles.weekHeaderRow}>
+          <Text style={[styles.weekNumber, { color: colors.formacja }]}>Tydzień {week.number}</Text>
+          {complete && (
+            <Ionicons name="checkmark-circle" size={20} color={colors.success} accessibilityLabel="Ukończony" />
+          )}
+        </View>
         <Text style={[styles.weekTitle, { color: colors.text }]}>{week.title}</Text>
-        <Text style={{ color: colors.subtext, marginTop: 4, fontSize: 13 }}>
-          {week.days.length} dni · zadania: {done}/{total}
+        <Text style={{ color: complete ? colors.success : colors.subtext, marginTop: 4, fontSize: 13 }}>
+          {week.days.length} dni · {complete ? 'ukończony' : `zadania: ${done}/${total}`}
         </Text>
+        {!complete && <ProgressBar done={done} total={total} color={colors.formacja} />}
       </Pressable>
     );
   }
@@ -131,6 +150,7 @@ export default function FormacjaListScreen({ navigation }: Props) {
             <Text style={{ color: colors.subtext, fontSize: 13 }}>
               {weeksLabel(section.weeks.length)} · zadania: {done}/{total}
             </Text>
+            <ProgressBar done={done} total={total} color={colors.formacja} />
           </View>
           <Ionicons name={isOpen ? 'chevron-up' : 'chevron-down'} size={20} color={colors.subtext} />
         </Pressable>
@@ -139,9 +159,39 @@ export default function FormacjaListScreen({ navigation }: Props) {
     );
   }
 
+  // "Kontynuuj" - ostatnio otwarty dzień albo następny nieukończony (patrz
+  // findContinueTarget). Niewidoczne, dopóki nie otwarto żadnego dnia.
+  function renderContinue() {
+    const target = findContinueTarget(lastDayId, completedCounts);
+    if (!target) return null;
+    const { week, day } = target;
+    const { done, total } = progress([week]);
+    return (
+      <Pressable
+        style={[styles.continueCard, { backgroundColor: colors.card, borderColor: colors.formacja }]}
+        onPress={() => navigation.navigate('FormacjaDay', { weekId: week.id, dayId: day.id })}
+        accessibilityLabel="Kontynuuj formację"
+      >
+        <View style={styles.rowText}>
+          <Text style={[styles.continueLabel, { color: colors.formacja }]}>Kontynuuj</Text>
+          <Text style={{ color: colors.subtext, fontSize: 13, marginTop: 2 }}>
+            {formacjaWeekLabel(week.id, week.number)}
+          </Text>
+          <Text style={[styles.weekTitle, { color: colors.text }]}>
+            Dzień {toRoman(day.number)} – {day.title}
+          </Text>
+          <ProgressBar done={done} total={total} color={colors.formacja} />
+        </View>
+        <Ionicons name="play-circle" size={36} color={colors.formacja} />
+      </Pressable>
+    );
+  }
+
   return (
     <SafeAreaView style={[styles.flex, { backgroundColor: colors.background }]}>
       <ScrollView contentContainerStyle={styles.listContent}>
+        {renderContinue()}
+
         <Text style={{ color: colors.subtext, marginBottom: 12 }}>
           Wybierz rok formacji. Każdy tydzień ma 7 dni tekstu i zadań.
         </Text>
@@ -167,6 +217,7 @@ export default function FormacjaListScreen({ navigation }: Props) {
                   <Text style={{ color: colors.subtext, fontSize: 13, marginTop: 2 }}>
                     zadania: {done}/{total}
                   </Text>
+                  <ProgressBar done={done} total={total} color={colors.formacja} />
                 </View>
                 <Ionicons name={isOpen ? 'chevron-up' : 'chevron-down'} size={24} color={colors.formacja} />
               </Pressable>
@@ -215,6 +266,17 @@ const styles = StyleSheet.create({
     padding: 14,
     marginBottom: 10,
   },
+  continueCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    borderWidth: 1.5,
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 16,
+  },
+  continueLabel: { fontSize: 13, fontWeight: '800', textTransform: 'uppercase', letterSpacing: 0.5 },
+  weekHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   weekNumber: { fontSize: 12, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.5 },
   weekTitle: { fontSize: 17, fontWeight: '700', marginTop: 2 },
 });
