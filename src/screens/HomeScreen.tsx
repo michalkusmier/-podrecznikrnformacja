@@ -7,6 +7,7 @@ import {
   ScrollView,
   StyleSheet,
   LayoutAnimation,
+  type ViewStyle,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
@@ -30,14 +31,13 @@ type Props = NativeStackScreenProps<MainStackParamList, 'Home'>;
 
 type IconName = React.ComponentProps<typeof Ionicons>['name'];
 
-// 3 kafelki, które przełączają treść na tym samym ekranie (Adoracja+
-// Proklamacja razem/Biblia/Czytania) - "kind: section". Kafelek "Adoracja"
-// łączy dwie dawniej osobne pozycje (Adoracja, Proklamacja) - obie korzystają
-// z tego samego mechanizmu (dwa selektory podsekcji + lista fragmentów z
-// podrecznik.json), różnił je tylko klucz danych i kolor, więc `sectionKeys`
-// wylicza WSZYSTKIE klucze danych, które ten kafelek obejmuje (kafelek jest
-// "aktywny", gdy currentSection to którykolwiek z nich) - w środku treści
-// jest mały przełącznik między nimi (patrz niżej), żeby nie trzeba było
+// 2 kafelki, które przełączają treść na tym samym ekranie - "kind: section".
+// Każdy łączy dwie dawniej osobne pozycje: "Adoracja" (Adoracja,
+// Proklamacja) i "Słowo Boże" (Czytania dnia, Biblia Tysiąclecia).
+// `sectionKeys` wylicza WSZYSTKIE klucze sekcji, które kafelek obejmuje
+// (kafelek jest "aktywny", gdy currentSection to którykolwiek z nich), a
+// pierwszy z nich otwiera się po stuknięciu - w środku treści jest mały
+// przełącznik między nimi (patrz MODE_SWITCHES niżej), żeby nie trzeba było
 // wracać do siatki. "Imiona i tytuły Boga" i "Formacja" ("kind: navigate")
 // nawigują na inny ekran i nigdy nie mają stanu "aktywny" tutaj. Jedna
 // wspólna lista - używana zarówno do dużej siatki (nic jeszcze nie wybrane),
@@ -50,12 +50,15 @@ type TileDef =
 const ADORACJA_KEY = 'adoracja';
 const PROKLAMACJA_KEY = 'Wyznanie i Proklamacja';
 
-// Pierwsze dwa elementy to "hero" kafelki (Formacja, Adoracja) - większe,
-// bo to dwie główne czynności w appce. Pozostałe trzy to mniejsze kafelki
-// "odsyłacze" (Imiona i tytuły Boga, Biblia Tysiąclecia, Czytania dnia) -
-// patrz HERO_TILES/SMALL_TILES niżej, które dzielą tę listę do renderowania
-// dwóch osobnych rzędów w dużej siatce. Zwinięty pasek ikon (po wybraniu
-// sekcji) nadal pokazuje wszystkie 5 w tej samej, jednej kolejności.
+// Sekcje "biblia" i "czytania" nie są kluczami w danych podrecznik.json (to
+// osadzone przeglądarki, nie zestawy gotowych fragmentów), więc traktujemy
+// je specjalnie przy renderowaniu.
+const BIBLIA_SECTION_KEY = 'biblia';
+const CZYTANIA_SECTION_KEY = 'czytania';
+
+// Siatka 2x2 równych kafelków - pierwszy rząd to dwie główne czynności
+// (Formacja, Adoracja), drugi to Słowo Boże i Imiona i tytuły Boga. Zwinięty
+// pasek ikon (po wybraniu sekcji) pokazuje wszystkie 4 w tej samej kolejności.
 const ALL_TILES: TileDef[] = [
   { key: 'formacja', label: 'Formacja', icon: 'school-outline', kind: 'navigate', route: 'Formacja' },
   {
@@ -66,27 +69,39 @@ const ALL_TILES: TileDef[] = [
     sectionKeys: [ADORACJA_KEY, PROKLAMACJA_KEY],
   },
   {
+    // Czytania pierwsze - to z nich korzysta się codziennie.
+    key: 'slowo',
+    label: 'Słowo Boże',
+    icon: 'book-outline',
+    kind: 'section',
+    sectionKeys: [CZYTANIA_SECTION_KEY, BIBLIA_SECTION_KEY],
+  },
+  {
     key: 'divineTitles',
     label: 'Imiona i tytuły Boga',
     icon: 'sparkles-outline',
     kind: 'navigate',
     route: 'DivineTitles',
   },
-  { key: 'biblia', label: 'Biblia Tysiąclecia', icon: 'library-outline', kind: 'section', sectionKeys: ['biblia'] },
-  { key: 'czytania', label: 'Czytania dnia', icon: 'calendar-outline', kind: 'section', sectionKeys: ['czytania'] },
 ];
 
-const HERO_TILES = ALL_TILES.slice(0, 2);
-const SMALL_TILES = ALL_TILES.slice(2);
+const TILE_ROWS = [ALL_TILES.slice(0, 2), ALL_TILES.slice(2)];
 
-// Sekcje "biblia" i "czytania" nie są kluczami w danych podrecznik.json (to
-// osadzone przeglądarki, nie zestawy gotowych fragmentów), więc traktujemy
-// je specjalnie przy renderowaniu.
-const BIBLIA_SECTION_KEY = 'biblia';
-const CZYTANIA_SECTION_KEY = 'czytania';
+// Przełączniki w środku kafelków łączących dwie sekcje. Kolor każdej pozycji
+// to kolor jej sekcji (sectionColorFor niżej).
+const MODE_SWITCHES: { key: string; label: string }[][] = [
+  [
+    { key: ADORACJA_KEY, label: 'Adoracja' },
+    { key: PROKLAMACJA_KEY, label: 'Proklamacja' },
+  ],
+  [
+    { key: CZYTANIA_SECTION_KEY, label: 'Czytania dnia' },
+    { key: BIBLIA_SECTION_KEY, label: 'Biblia' },
+  ],
+];
 
-// Ekran główny - 5 równych kafelków (Adoracja [z Proklamacją w środku],
-// Czytania dnia, Biblia Tysiąclecia, Imiona i tytuły Boga, Formacja). Dopóki
+// Ekran główny - 4 równe kafelki (Formacja, Adoracja [z Proklamacją w
+// środku], Słowo Boże [Czytania dnia i Biblia], Imiona i tytuły Boga). Dopóki
 // nic nie jest wybrane, nic się nie ładuje pod spodem - appka nie zakłada
 // domyślnie żadnej sekcji. Po wybraniu jednej z 3 sekcji "inline" duża
 // siatka zwija się w wąski pasek małych ikon, żeby treść (lista fragmentów
@@ -216,22 +231,28 @@ export default function HomeScreen({ navigation, route }: Props) {
     }
   }
 
+  function sectionColorFor(section: string): string {
+    if (section === BIBLIA_SECTION_KEY) return colors.primary;
+    if (section === CZYTANIA_SECTION_KEY) return colors.prosby;
+    return colorForSection(section, colors);
+  }
+
   function tileColorFor(tile: TileDef): string {
     if (tile.kind === 'navigate') {
       if (tile.key === 'formacja') return colors.formacja;
       if (tile.key === 'divineTitles') return colors.dziekczynienie;
       return colors.primary;
     }
-    if (tile.key === BIBLIA_SECTION_KEY) return colors.primary;
-    if (tile.key === CZYTANIA_SECTION_KEY) return colors.prosby;
-    return colorForSection(tile.sectionKeys[0], colors);
+    // Słowo Boże w kolorze Biblii, nie Czytań (pierwszej sekcji) - kolor
+    // Czytań (prośby) nie kojarzy się z całym Pismem.
+    if (tile.key === 'slowo') return colors.primary;
+    return sectionColorFor(tile.sectionKeys[0]);
   }
 
-  function renderTile(tile: TileDef, size: 'hero' | 'large' | 'small') {
+  function renderTile(tile: TileDef, size: 'large' | 'small') {
     const active = tile.kind === 'section' && tile.sectionKeys.includes(currentSection);
     const tileColor = tileColorFor(tile);
-    const tileStyle =
-      size === 'hero' ? styles.tileHero : size === 'large' ? styles.tile : styles.tileCompact;
+    const tileStyle = size === 'large' ? styles.tile : styles.tileCompact;
     return (
       <Pressable
         key={tile.key}
@@ -244,21 +265,45 @@ export default function HomeScreen({ navigation, route }: Props) {
       >
         <Ionicons
           name={tile.icon}
-          size={size === 'hero' ? 28 : size === 'large' ? 26 : 20}
+          size={size === 'large' ? 28 : 20}
           color={active ? '#fff' : tileColor}
         />
-        {size !== 'small' && (
-          <Text
-            style={[
-              size === 'hero' ? styles.tileLabelHero : styles.tileLabel,
-              { color: active ? '#fff' : tileColor },
-            ]}
-            numberOfLines={2}
-          >
+        {size === 'large' && (
+          <Text style={[styles.tileLabel, { color: active ? '#fff' : tileColor }]} numberOfLines={2}>
             {tile.label}
           </Text>
         )}
       </Pressable>
+    );
+  }
+
+  // Przełącznik sekcji w środku kafelka, który łączy dwie sekcje (patrz
+  // MODE_SWITCHES) - null, gdy bieżąca sekcja nie ma pary.
+  function renderModeSwitch(extraStyle?: ViewStyle) {
+    const modes = MODE_SWITCHES.find((pair) => pair.some((mode) => mode.key === currentSection));
+    if (!modes) return null;
+    return (
+      <View style={[styles.modeSwitchRow, extraStyle]}>
+        {modes.map((mode) => {
+          const modeActive = currentSection === mode.key;
+          const modeColor = sectionColorFor(mode.key);
+          return (
+            <Pressable
+              key={mode.key}
+              onPress={() => changeSection(mode.key)}
+              style={[
+                styles.modePill,
+                {
+                  borderColor: modeColor,
+                  backgroundColor: modeActive ? modeColor : 'transparent',
+                },
+              ]}
+            >
+              <Text style={{ color: modeActive ? '#fff' : modeColor, fontWeight: '700' }}>{mode.label}</Text>
+            </Pressable>
+          );
+        })}
+      </View>
     );
   }
 
@@ -288,8 +333,11 @@ export default function HomeScreen({ navigation, route }: Props) {
             <Text style={[styles.introText, { color: colors.text }]}>
               Wybierz, czym chcesz się teraz zająć.
             </Text>
-            <View style={styles.heroRow}>{HERO_TILES.map((tile) => renderTile(tile, 'hero'))}</View>
-            <View style={styles.tileGrid}>{SMALL_TILES.map((tile) => renderTile(tile, 'large'))}</View>
+            {TILE_ROWS.map((row, i) => (
+              <View key={i} style={styles.tileRow}>
+                {row.map((tile) => renderTile(tile, 'large'))}
+              </View>
+            ))}
           </View>
         </ScrollView>
       ) : (
@@ -297,6 +345,10 @@ export default function HomeScreen({ navigation, route }: Props) {
           <View style={[styles.compactRow, { borderBottomColor: colors.border, backgroundColor: colors.card }]}>
             {ALL_TILES.map((tile) => renderTile(tile, 'small'))}
           </View>
+
+          {/* Przełącznik Czytania/Biblia stoi nad przeglądarką, poza nią -
+              przeglądarki zajmują resztę ekranu i same się przewijają. */}
+          {(isBiblia || isCzytania) && renderModeSwitch(styles.modeSwitchRowOverBrowser)}
 
           {isBiblia ? (
             // BibliaBrowser i CzytaniaBrowser korzystają wewnętrznie z list
@@ -314,34 +366,7 @@ export default function HomeScreen({ navigation, route }: Props) {
                 </Text>
               )}
 
-              {(currentSection === ADORACJA_KEY || currentSection === PROKLAMACJA_KEY) && (
-                <View style={styles.modeSwitchRow}>
-                  {[
-                    { key: ADORACJA_KEY, label: 'Adoracja' },
-                    { key: PROKLAMACJA_KEY, label: 'Proklamacja' },
-                  ].map((mode) => {
-                    const modeActive = currentSection === mode.key;
-                    const modeColor = colorForSection(mode.key, colors);
-                    return (
-                      <Pressable
-                        key={mode.key}
-                        onPress={() => changeSection(mode.key)}
-                        style={[
-                          styles.modePill,
-                          {
-                            borderColor: modeColor,
-                            backgroundColor: modeActive ? modeColor : 'transparent',
-                          },
-                        ]}
-                      >
-                        <Text style={{ color: modeActive ? '#fff' : modeColor, fontWeight: '700' }}>
-                          {mode.label}
-                        </Text>
-                      </Pressable>
-                    );
-                  })}
-                </View>
-              )}
+              {renderModeSwitch()}
 
               {subSectionOptions.length > 0 && (
                 <View style={[styles.pickerWrap, { borderColor: colors.border }]}>
@@ -435,11 +460,14 @@ const styles = StyleSheet.create({
   content: { padding: 16, paddingBottom: 32 },
   introCard: { borderRadius: 16, padding: 16, marginHorizontal: 16, marginTop: 16 },
   introText: { fontSize: 14, lineHeight: 20 },
-  // Dwa duże kafelki (Formacja, Adoracja) - główne czynności, jeden rząd.
-  heroRow: { flexDirection: 'row', gap: 10, marginTop: 16 },
-  tileHero: {
+  // Siatka 2x2 - dwa rzędy po dwa równe, szerokie kafelki.
+  tileRow: { flexDirection: 'row', gap: 10, marginTop: 10 },
+  tile: {
     flex: 1,
-    aspectRatio: 1.7,
+    // Minimalna wysokość zamiast stałych proporcji - na wąskim telefonie
+    // kafelek z dwulinijkowym podpisem ("Imiona i tytuły Boga") rośnie, a
+    // drugi w rzędzie rośnie razem z nim (rząd rozciąga dzieci).
+    minHeight: 96,
     borderWidth: 1.5,
     borderRadius: 16,
     alignItems: 'center',
@@ -447,23 +475,8 @@ const styles = StyleSheet.create({
     gap: 6,
     padding: 10,
   },
-  tileLabelHero: { fontSize: 14, fontWeight: '700', textAlign: 'center' },
-  // Trzy mniejsze kafelki-odsyłacze (Imiona, Biblia, Czytania) - drugi rząd,
-  // dokładnie 3 na 30% szerokości wypełniają cały rząd (bez dziury po
-  // prawej, jak wcześniej przy 5 kafelkach w siatce 3 na rząd).
-  tileGrid: { flexDirection: 'row', gap: 10, marginTop: 10 },
-  tile: {
-    flex: 1,
-    aspectRatio: 1,
-    borderWidth: 1.5,
-    borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
-    padding: 6,
-  },
-  tileLabel: { fontSize: 12, fontWeight: '700', textAlign: 'center' },
-  // Zwinięty pasek - te same 6 kafelków, tylko małe i bez podpisów (sama
+  tileLabel: { fontSize: 14, fontWeight: '700', textAlign: 'center' },
+  // Zwinięty pasek - te same 4 kafelki, tylko małe i bez podpisów (sama
   // ikona + kolor), żeby zająć jak najmniej wysokości. Pełna nazwa sekcji
   // i tak pojawia się jako nagłówek nad treścią pod spodem.
   compactRow: {
@@ -483,6 +496,7 @@ const styles = StyleSheet.create({
   },
   sectionQuestion: { fontSize: 18, fontWeight: '700', textAlign: 'center', marginBottom: 12 },
   modeSwitchRow: { flexDirection: 'row', gap: 8, marginBottom: 12 },
+  modeSwitchRowOverBrowser: { marginHorizontal: 16, marginTop: 12, marginBottom: 0 },
   modePill: {
     flex: 1,
     borderWidth: 1.5,
