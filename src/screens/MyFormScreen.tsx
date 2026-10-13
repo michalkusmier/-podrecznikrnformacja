@@ -229,7 +229,7 @@ export default function MyFormScreen({ navigation }: Props) {
 
           {fragments.length === 0 && (
             <Text style={{ color: colors.subtext, fontSize: 13, marginTop: 4 }}>
-              Nie wybrałeś dziś żadnych fragmentów - możesz zapisać samą notatkę.
+              Dziś nie wybrano żadnych fragmentów. Możesz zapisać samą notatkę.
             </Text>
           )}
 

@@ -4,9 +4,15 @@ import { View, Text, Switch, ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAppTheme } from '../context/ThemeContext';
 
-// Odpowiednik wstep.page.ts
+// Odpowiednik wstep.page.ts. Teksty pisane bezosobowo albo w trybie
+// rozkazującym, żeby pasowały i do kobiet, i do mężczyzn (bez "modlił się",
+// "skończyłeś" itp.).
 export default function WstepScreen() {
   const { colors, isDark, toggleTheme } = useAppTheme();
+
+  const itemTitle = [styles.guideItemTitle, { color: colors.text }];
+  const itemText = [styles.guideItemText, { color: colors.subtext }];
+  const bold = { color: colors.text, fontWeight: '700' as const };
 
   return (
     <SafeAreaView style={[styles.flex, { backgroundColor: colors.background }]}>
@@ -19,9 +25,8 @@ export default function WstepScreen() {
         </View>
 
         <Text style={[styles.paragraph, { color: colors.text }]}>
-          Usiądź sobie wygodnie i znajdź odpowiednie miejsce w domu. Postaraj się zadbać o
-          czas, tak by nikt ci nie przeszkadzał. Będziesz modlił się na głos, byś mógł usłyszeć
-          Boże Słowa.
+          Usiądź wygodnie i znajdź odpowiednie miejsce w domu. Zadbaj o czas, w którym nikt nie
+          będzie ci przeszkadzać. Módl się na głos, aby usłyszeć Boże Słowa.
         </Text>
 
         <View style={[styles.guideCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
@@ -29,29 +34,63 @@ export default function WstepScreen() {
             Jak poruszać się po aplikacji
           </Text>
 
-          <Text style={[styles.guideItemTitle, { color: colors.text }]}>1. Wybierz fragmenty</Text>
-          <Text style={[styles.guideItemText, { color: colors.subtext }]}>
-            Na ekranie głównym: Adoracja, Proklamacja albo Imiona i tytuły Boga. Zaznacz
-            wersety, którymi chcesz się dziś modlić — możesz też szukać ich wprost w Biblii
-            Tysiąclecia.
+          <Text style={itemTitle}>1. Strona główna: cztery kafelki</Text>
+          <Text style={itemText}>
+            <Text style={bold}>Formacja</Text>: program formacyjny, tydzień po tygodniu. Wymaga
+            konta, które zakładasz kodem dostępu od prowadzącego. Każdy dzień ma treść, zdanie do
+            zapamiętania i zadania do odhaczenia. Swoje myśli zapiszesz przyciskiem „Zapisz
+            przemyślenie”. Karta „Kontynuuj” otwiera ostatnio otwarty dzień.
+          </Text>
+          <Text style={itemText}>
+            <Text style={bold}>Adoracja</Text>: fragmenty Pisma, którymi uwielbiasz Boga („Kim
+            jesteś, Boże?”). Przełącznik „Proklamacja” pokazuje fragmenty o tym, kim Bóg jest dla
+            ciebie.
+          </Text>
+          <Text style={itemText}>
+            <Text style={bold}>Słowo Boże</Text>: „Czytania dnia” (potrzebny internet) oraz
+            „Biblia”, w której możesz szukać słów albo przeglądać księgi.
+          </Text>
+          <Text style={itemText}>
+            <Text style={bold}>Imiona i tytuły Boga</Text>: wybierz Ojca, Jezusa albo Ducha
+            Świętego i konkretny tytuł, a zobaczysz fragmenty, w których występuje.
+          </Text>
+          <Text style={itemText}>
+            Wszędzie zaznaczasz wersety, którymi chcesz się dziś modlić. Ich liczbę widać na
+            przycisku „Modlitwa”.
           </Text>
 
-          <Text style={[styles.guideItemTitle, { color: colors.text }]}>
-            2. Modlitwa <Text style={{ fontWeight: '400' }}>(zakładka na dole)</Text>
+          <Text style={itemTitle}>
+            2. Modlitwa{' '}
+            <Text style={{ fontWeight: '400' }}>(przycisk „Modlitwa” albo zakładka „Start” na dole)</Text>
           </Text>
-          <Text style={[styles.guideItemText, { color: colors.subtext }]}>
-            Zapal świecę, ustaw czas i módl się zaznaczonymi fragmentami. Dotknij fragment, gdy
-            skończysz się nim modlić — zniknie z listy. Gdy znikną wszystkie, appka
-            automatycznie przeniesie cię do zapisania wpisu.
+          <Text style={itemText}>
+            Zapal świecę, ustaw czas i módl się zaznaczonymi fragmentami. Dotknij fragmentu po
+            zakończeniu modlitwy nim, a zniknie z listy. Gdy znikną wszystkie, aplikacja przeniesie
+            cię do zapisania wpisu.
           </Text>
 
-          <Text style={[styles.guideItemTitle, { color: colors.text }]}>
+          <Text style={itemTitle}>
             3. Dziennik <Text style={{ fontWeight: '400' }}>(zakładka na dole)</Text>
           </Text>
-          <Text style={[styles.guideItemText, { color: colors.subtext }]}>
-            Twoja historia modlitw — notatki, światła zewnętrzne/wewnętrzne i użyte fragmenty
-            (klikalne, prowadzą wprost do wersetu w Biblii) — zawsze pod ręką, niezależnie gdzie
-            akurat jesteś w appce.
+          <Text style={itemText}>
+            Twoja historia modlitw: notatki, światła zewnętrzne i wewnętrzne oraz użyte fragmenty,
+            które prowadzą wprost do wersetu w Biblii. Przyciskiem „+” dodasz wpis poza modlitwą.
+          </Text>
+          <Text style={itemText}>
+            Dziennik jest zapisany tylko na tym telefonie. Ikoną archiwum zapiszesz kopię do pliku
+            (np. na Dysk Google albo w mailu) i przywrócisz ją na nowym telefonie.
+          </Text>
+
+          <Text style={itemTitle}>4. Ikony na górze ekranu</Text>
+          <Text style={itemText}>
+            <Text style={bold}>Dzwonek</Text>: przypomnienia o Czytaniach dnia, Formacji i
+            Adoracji (godzina i dni tygodnia).
+          </Text>
+          <Text style={itemText}>
+            <Text style={bold}>Księżyc/słońce</Text>: tryb ciemny albo jasny.
+          </Text>
+          <Text style={itemText}>
+            <Text style={bold}>Znak zapytania</Text>: ten ekran.
           </Text>
         </View>
       </ScrollView>
@@ -78,7 +117,7 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     padding: 16,
   },
-  guideTitle: { fontSize: 16, fontWeight: '700', marginBottom: 12 },
-  guideItemTitle: { fontSize: 14, fontWeight: '700', marginTop: 10 },
-  guideItemText: { fontSize: 13, lineHeight: 19, marginTop: 3 },
+  guideTitle: { fontSize: 16, fontWeight: '700', marginBottom: 2 },
+  guideItemTitle: { fontSize: 14, fontWeight: '700', marginTop: 14 },
+  guideItemText: { fontSize: 13, lineHeight: 19, marginTop: 4 },
 });

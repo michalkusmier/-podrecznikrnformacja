@@ -256,7 +256,7 @@ export default function FormacjaDayScreen({ route, navigation }: Props) {
 
           {reflections.length === 0 && (
             <Text style={{ color: colors.subtext, fontSize: 13, marginTop: 4, marginBottom: 10 }}>
-              Nie zapisałeś jeszcze przemyśleń przy tym dniu.
+              Brak zapisanych przemyśleń przy tym dniu.
             </Text>
           )}
 
